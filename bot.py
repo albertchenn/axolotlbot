@@ -38,8 +38,6 @@ async def on_message(message):
         return
     if not message.content:
         return
-    if message.channel == mutedchat:
-        await message.channel.send('Proof?')
     if message.content.strip().lower() == "axolotl bot is bad":
         await message.author.create_dm()
         await message.author.dm_channel.send("buff axolotl is coming for you, so prepare yourself mortal.\nYou shall not stand the wrath of BUFF AXOLOTL")
