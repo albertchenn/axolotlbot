@@ -54,8 +54,6 @@ async def on_message(message):
         
         for message in msgs:
             await message.delete()
-    if message.content.strip().lower() == "test":
-        await message.channel.send("hello there, " + '<@' + str(message.author.id) + '>')
 
     if message.channel not in bannedchannels and message.content[0] != "." and message.content[0] != "?" and message.content[0] != "!":
         if str(message.author.id) not in levels:
