@@ -8,14 +8,10 @@ from discord.ext import commands
 with open('levels.json', 'r') as f:
     levels = json.load(f)
 
-intents = discord.Intents.default()
-intents.members = True
-
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 GUILD = os.getenv('DISCORD_GUILD')
 
-#client = discord.Client(intents=intents)
 bot = commands.Bot(command_prefix = "$")
 
 @bot.event
@@ -92,6 +88,5 @@ async def on_message(message):
 async def on_member_join(member):
     await member.create_dm()
     await member.dm_channel.send(f"Hi, {member.name}, welcome to Axolotl Clan!\nMake sure to look at the <#763387839522013194> and <#758025770181460015>\nUse the join role channel to get your class or game roles!")
-
 
 bot.run(TOKEN)
