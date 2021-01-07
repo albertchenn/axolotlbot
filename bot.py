@@ -72,6 +72,14 @@ async def on_message(message):
                 levelupembed = discord.Embed(title = levelUP, color = 0xFFC0CB) #create embed with level up message
                 await message.channel.send(embed = levelupembed) #send embed; YOU HAVE TO SEND THE EMBED FOR IT TO REGISTER
 
+                if levels[str(message.author.id)]["level"] == 25:
+                    viprank = str("congrats, you earned the VIP role!")
+                    vipembed = discord.Embed(title = viprank, color = 0xff85a2) #vip embed once they reach level 25
+                    await message.channel.send(embed = vipembed)
+
+                    vip = discord.utils.get(message.guild.roles, name = "VIP")  #accesses the role vip, and adds it to the user
+                    await message.author.add_roles(vip)
+
             else:   #any message sent
                 added_xp = random.randint(1, 5) #xp randomized from 1-5, may change later
                 levels[str(message.author.id)]["xp"] += added_xp #increase the xp by the randomized xp
