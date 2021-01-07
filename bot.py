@@ -1,5 +1,6 @@
 import os
 import json
+import random
 
 import discord
 from dotenv import load_dotenv
@@ -57,24 +58,25 @@ async def on_message(message):
 
     if message.channel not in bannedchannels and message.content[0] != "." and message.content[0] != "?" and message.content[0] != "!":
         if str(message.author.id) not in levels:
-            levels[str(message.author.id)] = {"msgs": 1, "level": 1}
+            levels[str(message.author.id)] = {"xp": 1, "level": 1}
             print('new user')
         else:
-            if 100 * (levels[str(message.author.id)]["level"] - 1) + 50 == levels[str(message.author.id)]["msgs"] + 1:
+            if 100 * (levels[str(message.author.id)]["level"] - 1) + 50 <= levels[str(message.author.id)]["xp"] + 1:
                 levels[str(message.author.id)]["level"] += 1
-                levels[str(message.author.id)]["msgs"] = 0
+                levels[str(message.author.id)]["xp"] = 0
                 levelUP = str(message.author.name) + " leveled up to " + str(levels[str(message.author.id)]["level"]) + "!"
                 levelupembed = discord.Embed(title = levelUP, color = 0xFFC0CB)
                 await message.channel.send(embed = levelupembed)
             else:
-                levels[str(message.author.id)]["msgs"] += 1
+                added_xp = random.randint(1, 5)
+                levels[str(message.author.id)]["xp"] += added_xp
         with open('levels.json', 'w') as f:
             f.write(json.dumps(levels, indent=4, sort_keys=True)) 
         f.close()
     if message.content == ".level" or message.content == ".lvl":
         if message.channel == spam:
             level = "level: " + str(levels[str(message.author.id)]["level"]) + "\n"   
-            msgs = "msgs since last level up: " + str(levels[str(message.author.id)]["msgs"])
+            msgs = "xp: " + str(levels[str(message.author.id)]["xp"]) + "/" + str(100 * (levels[str(message.author.id)]["level"] - 1) + 50)
             
             levelinfoembed = discord.Embed(title = level + msgs, color = 0xff85a2)
 
