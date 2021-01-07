@@ -65,10 +65,10 @@ async def on_message(message):
 
     if message.channel not in bannedchannels and message.content[0] != "." and message.content[0] != "?" and message.content[0] != "!":
         if str(message.author.id) not in levels:
-            levels[str(message.author.id)] = {"msgs": 1, "level": 0}
+            levels[str(message.author.id)] = {"msgs": 1, "level": 1}
             print('new user')
         else:
-            if 100 * levels[str(message.author.id)]["level"] + 50 == levels[str(message.author.id)]["msgs"] + 1:
+            if 100 * (levels[str(message.author.id)]["level"] - 1) + 50 == levels[str(message.author.id)]["msgs"] + 1:
                 levels[str(message.author.id)]["level"] += 1
                 levels[str(message.author.id)]["msgs"] = 0
                 levelUP = str(message.author.name) + " leveled up to " + str(levels[str(message.author.id)]["level"]) + "!"
