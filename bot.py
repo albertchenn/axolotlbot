@@ -9,6 +9,9 @@ from discord.ext import commands
 with open('levels.json', 'r') as f:
     levels = json.load(f)           #takes the json file and makes it a "levels" dictionary
 
+with open('invites.json', 'r') as e:
+    invites = json.load(e)
+
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN') #taking environment variables from .env
 GUILD = os.getenv('DISCORD_GUILD')
@@ -97,8 +100,25 @@ async def on_message(message):
             await message.channel.send(embed = levelinfoembed) #sends embed
 
 @bot.event
+async def on_invite_create(invite):
+    if invite.inviter not in invites:
+        invites[str(invite.inviter.id)] = {"invites": invite}
+    with open('invites.json', 'w') as e:
+        e.write(json.dumps(levels, indent=4, sort_keys=True)) #save the dictionary of dictionaries of levels and xp to "levels.json"
+    e.close()
+
+@bot.event
 async def on_member_join(member): #triggers on member join
+    main = bot.get_channel(763475634278105088)
+
     await member.create_dm() #creates dm channel
     await member.dm_channel.send(f"Hi, {member.name}, welcome to Axolotl Clan!\nMake sure to look at the <#763387839522013194> and <#758025770181460015>\nUse the join role channel to get your class or game roles!") #welcome and informational message
+    await main.send(f"{member.name} is here")
+    for invite in invites:
+        if invite["invites"].uses == 3:
+            viprank = str("congrats, you earned the VIP role!")
+            vipembed = discord.Embed(title = viprank, color = 0xff85a2) #vip embed once they reach level 25
+            await main.channel.send(embed = vipembed)
+            
 
 bot.run(TOKEN) #runs the program
