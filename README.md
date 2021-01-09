@@ -6,5 +6,5 @@ it's a bot made for the people of Axolotl Clan
 - python-dotenv
 
 
-Install them with ```pip install discord.py
-                   pip install python-dotenv```
+Install them with `pip install discord.py,
+                   pip install python-dotenv`
