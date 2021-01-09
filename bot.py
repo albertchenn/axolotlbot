@@ -1,6 +1,8 @@
+#bot.py
 import os
 import json     #python imports
 import random
+from datetime import datetime
 
 import discord
 from dotenv import load_dotenv  #discord imports
@@ -8,15 +10,11 @@ from discord.ext import commands
 
 with open('levels.json', 'r') as f:
     levels = json.load(f)           #takes the json file and makes it a "levels" dictionary
-
-with open('invites.json', 'r') as e:
-    invites = json.load(e)
-
+    
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN') #taking environment variables from .env
-GUILD = os.getenv('DISCORD_GUILD')
 
-bot = commands.Bot(command_prefix = "$") #creates bot instance
+bot = commands.Bot(command_prefix = ".") #creates bot instance
 
 @bot.event
 async def on_ready():
@@ -35,8 +33,10 @@ async def on_message(message):
     rythm = bot.get_user(235088799074484224) #user declarations
     dyno = bot.get_user(155149108183695360)
 
-    bannedchannels = [mutedchat, spam, music, gulag, joinrole]
-    bannedusers = [axolotl, rythm, dyno]                #makes lists of blacklisted users
+    axolotlclan = bot.get_guild(591065297692262410) #guild declarations
+
+    bannedchannels = [mutedchat, spam, music, gulag, joinrole]   #makes lists of blacklisted channels
+    bannedusers = [axolotl, rythm, dyno]            #makes lists of blacklisted users
 
     if message.author == bannedusers:
         return          #doesn't do anything if a banned user(bot) speaks
@@ -44,19 +44,18 @@ async def on_message(message):
     if not message.content:
         return          #doesn't do anything if no message is send; may change later
 
-    if message.content.strip().lower() == "axolotl bot is bad": #triggers on the message "axolotl bot is bad"
-        await message.author.create_dm()      #starts a "channel" which is actually just a dm
-        await message.author.dm_channel.send("buff axolotl is coming for you, so prepare yourself mortal.\nYou shall not stand the wrath of BUFF AXOLOTL")
-        await message.author.dm_channel.send(file=discord.File('buffaxolotl.png')) #threatening dm
+    if message.content.lower() == "axolotl bot is bad": #triggers on the message "axolotl bot is bad"
+        #await message.author.create_dm()      #starts a "channel" which is actually just a dm
+        await message.author.send("buff axolotl is coming for you, so prepare yourself mortal.\nYou shall not stand the wrath of BUFF AXOLOTL")
+        await message.author.send(file=discord.File('buffaxolotl.png')) #threatening dm
 
     if message.content.strip().lower() == "school sucks": #triggers on the message "school sucks"
         authorid = str(message.author.id) #finds the person's id
         authorping = '<@' + authorid + '>' #creates a ping message
         
         msgs = [] #creates empty list to log the pings
-        await message.author.create_dm() #starts a dm channel
         for _ in range(5): #iterate 5 times
-            sent_message = await message.author.dm_channel.send(authorping) #ping the person in dm channel
+            sent_message = await message.author.send(authorping) #ping the person in dm channel
             msgs.append(sent_message) #log the message
         
         for message in msgs: #iterate through all the sent messages
@@ -75,12 +74,12 @@ async def on_message(message):
                 levelupembed = discord.Embed(title = levelUP, color = 0xFFC0CB) #create embed with level up message
                 await message.channel.send(embed = levelupembed) #send embed; YOU HAVE TO SEND THE EMBED FOR IT TO REGISTER
 
-                if levels[str(message.author.id)]["level"] == 25:
+                if levels[str(message.author.id)]["level"] == 10:
                     viprank = str("congrats, you earned the VIP role!")
                     vipembed = discord.Embed(title = viprank, color = 0xff85a2) #vip embed once they reach level 25
                     await message.channel.send(embed = vipembed)
 
-                    vip = discord.utils.get(message.guild.roles, name = "VIP")  #accesses the role vip, and adds it to the user
+                    vip = discord.utils.get(axolotlclan.roles, name = "VIP")  #accesses the role vip, and adds it to the user
                     await message.author.add_roles(vip)
 
             else:   #any message sent
@@ -90,35 +89,48 @@ async def on_message(message):
             f.write(json.dumps(levels, indent=4, sort_keys=True)) #save the dictionary of dictionaries of levels and xp to "levels.json"
         f.close()
 
-    if message.content == ".level" or message.content == ".lvl": #triggers when ".level" or ".lvl" is sent
-        if message.channel == spam: #only sends in spam and commands
-            level = "level: " + str(levels[str(message.author.id)]["level"]) + "\n" #accesses the level of the person who sent it from the json file.   
-            msgs = "xp: " + str(levels[str(message.author.id)]["xp"]) + "/" + str(100 * (levels[str(message.author.id)]["level"] - 1) + 50) #accesses the xp needed from the json file, (current xp/needed xp)
-            
-            levelinfoembed = discord.Embed(title = level + msgs, color = 0xff85a2) #creates embed of levels
-
-            await message.channel.send(embed = levelinfoembed) #sends embed
-
-@bot.event
-async def on_invite_create(invite):
-    if invite.inviter not in invites:
-        invites[str(invite.inviter.id)] = {"invites": invite}
-    with open('invites.json', 'w') as e:
-        e.write(json.dumps(levels, indent=4, sort_keys=True)) #save the dictionary of dictionaries of levels and xp to "levels.json"
-    e.close()
+    await bot.process_commands(message)
 
 @bot.event
 async def on_member_join(member): #triggers on member join
     main = bot.get_channel(763475634278105088)
 
-    await member.create_dm() #creates dm channel
     await member.dm_channel.send(f"Hi, {member.name}, welcome to Axolotl Clan!\nMake sure to look at the <#763387839522013194> and <#758025770181460015>\nUse the join role channel to get your class or game roles!") #welcome and informational message
-    await main.send(f"{member.name} is here")
-    for invite in invites:
-        if invite["invites"].uses == 3:
-            viprank = str("congrats, you earned the VIP role!")
-            vipembed = discord.Embed(title = viprank, color = 0xff85a2) #vip embed once they reach level 25
-            await main.channel.send(embed = vipembed)
-            
+    await main.send(f"{member.name} is here!")
+
+@bot.command(aliases=['lvl', 'level'])
+async def _level(ctx):
+    message = ctx.message
+    spam = bot.get_channel(768876717422936115)
+
+    if message.channel == spam:
+        level = "level: " + str(levels[str(message.author.id)]["level"]) + "\n" #accesses the level of the person who sent it from the json file.   
+        msgs = "xp: " + str(levels[str(message.author.id)]["xp"]) + "/" + str(100 * (levels[str(message.author.id)]["level"] - 1) + 50) #accesses the xp needed from the json file, (current xp/needed xp)
+        
+        levelinfoembed = discord.Embed(title = level + msgs, color = 0xff85a2, timestamp=datetime.utcnow()) #creates embed of levels (and sets a timestamp)
+        levelinfoembed.set_footer(text='Retrieved Data')
+
+        await ctx.send(embed = levelinfoembed)
+
+@bot.command(aliases=['invites'])
+async def _invites(ctx):
+    axolotlclan = bot.get_guild(591065297692262410)
+    totalInvites = 0
+    for i in await ctx.guild.invites():
+        if i.inviter == ctx.author:
+            totalInvites += i.uses
+    invitesmessage = f"You've invited {totalInvites} member(s) to the server!"
+    invitesEmbed = discord.Embed(title = invitesmessage, color = 0xff85a2, timestamp=datetime.utcnow())
+    
+    message = ctx.message
+    if totalInvites >= 3:
+        viprank = str("congrats, you earned the VIP role!")
+        vipembed = discord.Embed(title = viprank, color = 0xff85a2) #vip embed once they reach level 25
+        await message.channel.send(embed = vipembed)
+
+        vip = discord.utils.get(axolotlclan.roles, name = "VIP")  #accesses the role vip, and adds it to the user
+        await message.author.add_roles(vip)
+        
+    await ctx.send(embed = invitesEmbed)
 
 bot.run(TOKEN) #runs the program
