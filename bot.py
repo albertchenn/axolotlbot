@@ -10,7 +10,7 @@ from discord.ext import commands
 
 with open('levels.json', 'r') as f:
     levels = json.load(f)           #takes the json file and makes it a "levels" dictionary
-
+    
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN') #taking environment variables from .env
 
@@ -32,6 +32,8 @@ async def on_message(message):
     axolotl = bot.get_user(791048344956043274)
     rythm = bot.get_user(235088799074484224) #user declarations
     dyno = bot.get_user(155149108183695360)
+
+    axolotlclan = bot.get_guild(591065297692262410) #guild declarations
 
     bannedchannels = [mutedchat, spam, music, gulag, joinrole]   #makes lists of blacklisted channels
     bannedusers = [axolotl, rythm, dyno]            #makes lists of blacklisted users
@@ -72,12 +74,12 @@ async def on_message(message):
                 levelupembed = discord.Embed(title = levelUP, color = 0xFFC0CB) #create embed with level up message
                 await message.channel.send(embed = levelupembed) #send embed; YOU HAVE TO SEND THE EMBED FOR IT TO REGISTER
 
-                if levels[str(message.author.id)]["level"] == 25:
+                if levels[str(message.author.id)]["level"] == 10:
                     viprank = str("congrats, you earned the VIP role!")
                     vipembed = discord.Embed(title = viprank, color = 0xff85a2) #vip embed once they reach level 25
                     await message.channel.send(embed = vipembed)
 
-                    vip = discord.utils.get(message.guild.roles, name = "VIP")  #accesses the role vip, and adds it to the user
+                    vip = discord.utils.get(axolotlclan.roles, name = "VIP")  #accesses the role vip, and adds it to the user
                     await message.author.add_roles(vip)
 
             else:   #any message sent
@@ -88,6 +90,13 @@ async def on_message(message):
         f.close()
 
     await bot.process_commands(message)
+
+@bot.event
+async def on_member_join(member): #triggers on member join
+    main = bot.get_channel(763475634278105088)
+
+    await member.dm_channel.send(f"Hi, {member.name}, welcome to Axolotl Clan!\nMake sure to look at the <#763387839522013194> and <#758025770181460015>\nUse the join role channel to get your class or game roles!") #welcome and informational message
+    await main.send(f"{member.name} is here!")
 
 @bot.command(aliases=['lvl', 'level'])
 async def _level(ctx):
@@ -103,10 +112,25 @@ async def _level(ctx):
 
         await ctx.send(embed = levelinfoembed)
 
+@bot.command(aliases=['invites'])
+async def _invites(ctx):
+    axolotlclan = bot.get_guild(591065297692262410)
+    totalInvites = 0
+    for i in await ctx.guild.invites():
+        if i.inviter == ctx.author:
+            totalInvites += i.uses
+    invitesmessage = f"You've invited {totalInvites} member(s) to the server!"
+    invitesEmbed = discord.Embed(title = invitesmessage, color = 0xff85a2, timestamp=datetime.utcnow())
+    
+    message = ctx.message
+    if totalInvites >= 3:
+        viprank = str("congrats, you earned the VIP role!")
+        vipembed = discord.Embed(title = viprank, color = 0xff85a2) #vip embed once they reach level 25
+        await message.channel.send(embed = vipembed)
 
-@bot.event
-async def on_member_join(member): #triggers on member join
-    await member.create_dm() #creates dm channel
-    await member.dm_channel.send(f"Hi, {member.name}, welcome to Axolotl Clan!\nMake sure to look at the <#763387839522013194> and <#758025770181460015>\nUse the join role channel to get your class or game roles!") #welcome and informational message
+        vip = discord.utils.get(axolotlclan.roles, name = "VIP")  #accesses the role vip, and adds it to the user
+        await message.author.add_roles(vip)
+        
+    await ctx.send(embed = invitesEmbed)
 
 bot.run(TOKEN) #runs the program
