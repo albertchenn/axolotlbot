@@ -44,12 +44,12 @@ async def on_message(message):
     if not message.content:
         return          #doesn't do anything if no message is send; may change later
 
-    if message.content.lower() == "axolotl bot is bad": #triggers on the message "axolotl bot is bad"
+    if "axolotl bot is bad" in message.content.lower(): #triggers on the message "axolotl bot is bad"
         #await message.author.create_dm()      #starts a "channel" which is actually just a dm
         await message.author.send("buff axolotl is coming for you, so prepare yourself mortal.\nYou shall not stand the wrath of BUFF AXOLOTL")
         await message.author.send(file=discord.File('buffaxolotl.png')) #threatening dm
 
-    if message.content.strip().lower() == "school sucks": #triggers on the message "school sucks"
+    if "school sucks" in message.content.lower(): #triggers on the message "school sucks"
         authorid = str(message.author.id) #finds the person's id
         authorping = '<@' + authorid + '>' #creates a ping message
         
@@ -64,7 +64,7 @@ async def on_message(message):
     if message.channel not in bannedchannels and message.content[0] != "." and message.content[0] != "?" and message.content[0] != "!": #check if it's not a spam channel or a bot command
         if str(message.author.id) not in levels: #if a new user joins and says something, create a new dictionary in the json file 
             levels[str(message.author.id)] = {"xp": 1, "level": 1} 
-            print('new user') #debugging
+            print('new user') #debugging 
 
         else:
             if 100 * (levels[str(message.author.id)]["level"] - 1) + 50 <= levels[str(message.author.id)]["xp"] + 1: #check if it passed the level; level cap is calculated as 100 * (level - 1) + 50
@@ -74,7 +74,7 @@ async def on_message(message):
                 levelupembed = discord.Embed(title = levelUP, color = 0xFFC0CB) #create embed with level up message
                 await message.channel.send(embed = levelupembed) #send embed; YOU HAVE TO SEND THE EMBED FOR IT TO REGISTER
 
-                if levels[str(message.author.id)]["level"] == 10:
+                if levels[str(message.author.id)]["level"] >= 10:
                     viprank = str("congrats, you earned the VIP role!")
                     vipembed = discord.Embed(title = viprank, color = 0xff85a2) #vip embed once they reach level 25
                     await message.channel.send(embed = vipembed)
@@ -101,16 +101,14 @@ async def on_member_join(member): #triggers on member join
 @bot.command(aliases=['lvl', 'level'])
 async def _level(ctx):
     message = ctx.message
-    spam = bot.get_channel(768876717422936115)
 
-    if message.channel == spam:
-        level = "level: " + str(levels[str(message.author.id)]["level"]) + "\n" #accesses the level of the person who sent it from the json file.   
-        msgs = "xp: " + str(levels[str(message.author.id)]["xp"]) + "/" + str(100 * (levels[str(message.author.id)]["level"] - 1) + 50) #accesses the xp needed from the json file, (current xp/needed xp)
-        
-        levelinfoembed = discord.Embed(title = level + msgs, color = 0xff85a2, timestamp=datetime.utcnow()) #creates embed of levels (and sets a timestamp)
-        levelinfoembed.set_footer(text='Retrieved Data')
+    level = "level: " + str(levels[str(message.author.id)]["level"]) + "\n" #accesses the level of the person who sent it from the json file.   
+    msgs = "xp: " + str(levels[str(message.author.id)]["xp"]) + "/" + str(100 * (levels[str(message.author.id)]["level"] - 1) + 50) #accesses the xp needed from the json file, (current xp/needed xp)
+    
+    levelinfoembed = discord.Embed(title = level + msgs, color = 0xff85a2, timestamp=datetime.utcnow()) #creates embed of levels (and sets a timestamp)
+    levelinfoembed.set_footer(text='Retrieved Data')
 
-        await ctx.send(embed = levelinfoembed)
+    await ctx.send(embed = levelinfoembed)
 
 @bot.command(aliases=['invites'])
 async def _invites(ctx):
