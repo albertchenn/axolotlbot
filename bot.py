@@ -20,7 +20,48 @@ bot = commands.Bot(command_prefix = ".") #creates bot instance
 async def on_ready():
     print('{} is on'.format(bot.user.name))                                   #gives notification when bot is online and sets game message to "Playing with Axolotls"
     await bot.change_presence(activity=discord.Game(name='with Axolotls'))
+
+    roles = bot.get_channel(797867864593006592)
+
+    reactionmessage = """:triangular_ruler: - precalc\n
+                         :book: - ela (thompson)\n
+                         :tools: - ied\n
+                         :straight_ruler: - algebra 2\n
+                         :earth_americas: - world history\n
+                         :blue_square: - salem\n
+                         :black_large_square: - plymouth\n
+                         :red_square: - canton\n
+                         :loudspeaker: - announcements\n
+                         :man_scientist: - biology\n
+                         :flag_fr: - french\n
+                         :united_nations: - ap world\n
+                         :closed_book: - ela (wright)\n
+                         :detective: - gulag\n
+                         :microphone2: - debate\n"""
+
+    reactionembed = discord.Embed(title = "react to the following emojis for ur roles", description = reactionmessage)
+
+    message = await roles.send(embed = reactionembed)
+        
+    emojis = ['📐', '📖', '🛠️', '📏', '🌎', '🟦', '⬛', '🟥', '📢', '👨‍🔬', '🇫🇷', '🇺🇳', '📕', '🕵️‍♂️', '🎙️']
+    for emoji in emojis:
+        await message.add_reaction(emoji)
+
+    reactionmessage = """:computer: - cse\n
+                        :robot: - robotics\n
+                        :rocket: - physics (gell)\n
+                        :airplane_departure: - physics (hiske)\n
+                        :flag_es: - spanish 2\n
+                        :flag_mx: - spanish 3\n
+                        :heavy_division_sign: - math olympiad\n"""
     
+    reactionembed = discord.Embed(description = reactionmessage)
+
+    message = await roles.send(embed = reactionembed)
+
+    emojis = ['💻', '🤖', '🚀', '🛫', '🇪🇸', '🇲🇽', '➗']    
+    for emoji in emojis:
+        await message.add_reaction(emoji)
 @bot.event
 async def on_message(message):
     mutedchat = bot.get_channel(766656875256741898)
@@ -175,52 +216,5 @@ async def _invites(ctx):
         
     await ctx.send(embed = invitesEmbed)
 
-@bot.command(aliases=['school'])
-async def _school(ctx):
-    roles = bot.get_channel(797867864593006592)
-
-    reactionmessage = """:triangular_ruler: - precalc\n
-                         :book: - ela (thompson)\n
-                         :tools: - ied\n
-                         :straight_ruler: - algebra 2\n
-                         :earth_americas: - world history\n
-                         :blue_square: - salem\n
-                         :black_large_square: - plymouth\n
-                         :red_square: - canton\n
-                         :loudspeaker: - announcements\n
-                         :man_scientist: - biology\n
-                         :flag_fr: - french\n
-                         :united_nations: - ap world\n
-                         :closed_book: - ela (wright)\n
-                         :detective: - gulag\n
-                         :microphone2: - debate\n"""
-
-    reactionembed = discord.Embed(title = "react to the following emojis for ur roles", description = reactionmessage)
-
-    message = await roles.send(embed = reactionembed)
-        
-    emojis = ['📐', '📖', '🛠️', '📏', '🌎', '🟦', '⬛', '🟥', '📢', '👨‍🔬', '🇫🇷', '🇺🇳', '📕', '🕵️‍♂️', '🎙️']
-    for emoji in emojis:
-        await message.add_reaction(emoji)
-
-@bot.command(aliases=['school2'])
-async def _school2(ctx):
-    roles = bot.get_channel(797867864593006592)
-
-    reactionmessage = """:computer: - cse\n
-                         :robot: - robotics\n
-                         :rocket: - physics (gell)\n
-                         :airplane_departure: - physics (hiske)\n
-                         :flag_es: - spanish 2\n
-                         :flag_mx: - spanish 3\n
-                         :heavy_division_sign: - math olympiad\n"""
-    
-    reactionembed = discord.Embed(description = reactionmessage)
-
-    message = await roles.send(embed = reactionembed)
-
-    emojis = ['💻', '🤖', '🚀', '🛫', '🇪🇸', '🇲🇽', '➗']    
-    for emoji in emojis:
-        await message.add_reaction(emoji)
 
 bot.run(TOKEN) #runs the program
