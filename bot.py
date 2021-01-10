@@ -20,7 +20,7 @@ bot = commands.Bot(command_prefix = ".") #creates bot instance
 async def on_ready():
     print('{} is on'.format(bot.user.name))                                   #gives notification when bot is online and sets game message to "Playing with Axolotls"
     await bot.change_presence(activity=discord.Game(name='with Axolotls'))
-
+    
 @bot.event
 async def on_message(message):
     mutedchat = bot.get_channel(766656875256741898)
@@ -98,10 +98,53 @@ async def on_member_join(member): #triggers on member join
     await member.dm_channel.send(f"Hi, {member.name}, welcome to Axolotl Clan!\nMake sure to look at the <#763387839522013194> and <#758025770181460015>\nUse the join role channel to get your class or game roles!") #welcome and informational message
     await main.send(f"{member.name} is here!")
 
+@bot.event
+async def on_reaction_add(reaction, user):
+    roles = bot.get_channel(797867864593006592)
+    axolotl = bot.get_user(791048344956043274)
+    axolotlclan = bot.get_guild(591065297692262410)
+
+    emojiRoles = {'📐': 'Precalc', '📖': 'ELA (Thompson)', '🛠️': 'IED', '📏': 'Algebra 2', '🌎': 'World History',
+                  '🟦': 'Salem', '⬛': 'Plymouth', '🟥': 'Canton', '📢': 'Announcements', '👨‍🔬': 'Biology', '🇫🇷': 'French', 
+                  '🇺🇳': 'AP World', '📕': 'ELA (Wright)', '🕵️‍♂️': 'Gulag', '🎙️': 'Debate', '💻': 'CSE', '🤖': 'Robotics', 
+                  '🚀': 'Physics (Gell)', '🛫': 'Physics (Hiske)', '🇪🇸': 'Spanish 2', '🇲🇽': 'Spanish 3', '➗': 'Math Olympiad'}
+
+    if reaction.message.channel != roles:
+        return
+    elif user == axolotl:
+        return
+    else:
+        role = discord.utils.get(axolotlclan.roles, name = emojiRoles[str(reaction)])
+        if role in user.roles:
+            await user.remove_roles(role)
+        else:
+            await user.add_roles(role)
+        await reaction.remove(user)
+
+@bot.event
+async def on_reaction_remove(reaction, user):
+    print('hi')
+    roles = bot.get_channel(797867864593006592)
+    axolotl = bot.get_user(791048344956043274)
+    axolotlclan = bot.get_guild(591065297692262410)
+
+    emojiRoles = {'📐': 'Precalc', '📖': 'ELA (Thompson)', '🛠️': 'IED', '📏': 'Algebra 2', '🌎': 'World History',
+                '🟦': 'Salem', '⬛': 'Plymouth', '🟥': 'Canton', '📢': 'Announcements', '👨‍🔬': 'Biology', '🇫🇷': 'French', 
+                '🇺🇳': 'AP World', '📕': 'ELA (Wright)', '🕵️‍♂️': 'Gulag', '🎙️': 'Debate', '💻': 'CSE', '🤖': 'Robotics', 
+                '🚀': 'Physics (Gell)', '🛫': 'Physics (Hiske)', '🇪🇸': 'Spanish 2', '🇲🇽': 'Spanish 3', '➗': 'Math Olympiad'}
+
+    if reaction.message.channel != roles:
+        return
+    elif user == axolotl:
+        return
+    else:
+        role = discord.utils.get(axolotlclan.roles, name = emojiRoles[str(reaction)])
+        await user.remove_roles(role)
+
 @bot.command(aliases=['lvl', 'level'])
 async def _level(ctx):
     message = ctx.message
-
+    
     level = "level: " + str(levels[str(message.author.id)]["level"]) + "\n" #accesses the level of the person who sent it from the json file.   
     msgs = "xp: " + str(levels[str(message.author.id)]["xp"]) + "/" + str(100 * (levels[str(message.author.id)]["level"] - 1) + 50) #accesses the xp needed from the json file, (current xp/needed xp)
     
@@ -113,6 +156,8 @@ async def _level(ctx):
 @bot.command(aliases=['invites'])
 async def _invites(ctx):
     axolotlclan = bot.get_guild(591065297692262410)
+    message = ctx.message
+
     totalInvites = 0
     for i in await ctx.guild.invites():
         if i.inviter == ctx.author:
@@ -120,7 +165,6 @@ async def _invites(ctx):
     invitesmessage = f"You've invited {totalInvites} member(s) to the server!"
     invitesEmbed = discord.Embed(title = invitesmessage, color = 0xff85a2, timestamp=datetime.utcnow())
     
-    message = ctx.message
     if totalInvites >= 3:
         viprank = str("congrats, you earned the VIP role!")
         vipembed = discord.Embed(title = viprank, color = 0xff85a2) #vip embed once they reach level 25
@@ -130,5 +174,53 @@ async def _invites(ctx):
         await message.author.add_roles(vip)
         
     await ctx.send(embed = invitesEmbed)
+
+@bot.command(aliases=['school'])
+async def _school(ctx):
+    roles = bot.get_channel(797867864593006592)
+
+    reactionmessage = """:triangular_ruler: - precalc\n
+                         :book: - ela (thompson)\n
+                         :tools: - ied\n
+                         :straight_ruler: - algebra 2\n
+                         :earth_americas: - world history\n
+                         :blue_square: - salem\n
+                         :black_large_square: - plymouth\n
+                         :red_square: - canton\n
+                         :loudspeaker: - announcements\n
+                         :man_scientist: - biology\n
+                         :flag_fr: - french\n
+                         :united_nations: - ap world\n
+                         :closed_book: - ela (wright)\n
+                         :detective: - gulag\n
+                         :microphone2: - debate\n"""
+
+    reactionembed = discord.Embed(title = "react to the following emojis for ur roles", description = reactionmessage)
+
+    message = await roles.send(embed = reactionembed)
+        
+    emojis = ['📐', '📖', '🛠️', '📏', '🌎', '🟦', '⬛', '🟥', '📢', '👨‍🔬', '🇫🇷', '🇺🇳', '📕', '🕵️‍♂️', '🎙️']
+    for emoji in emojis:
+        await message.add_reaction(emoji)
+
+@bot.command(aliases=['school2'])
+async def _school2(ctx):
+    roles = bot.get_channel(797867864593006592)
+
+    reactionmessage = """:computer: - cse\n
+                         :robot: - robotics\n
+                         :rocket: - physics (gell)\n
+                         :airplane_departure: - physics (hiske)\n
+                         :flag_es: - spanish 2\n
+                         :flag_mx: - spanish 3\n
+                         :heavy_division_sign: - math olympiad\n"""
+    
+    reactionembed = discord.Embed(description = reactionmessage)
+
+    message = await roles.send(embed = reactionembed)
+
+    emojis = ['💻', '🤖', '🚀', '🛫', '🇪🇸', '🇲🇽', '➗']    
+    for emoji in emojis:
+        await message.add_reaction(emoji)
 
 bot.run(TOKEN) #runs the program
