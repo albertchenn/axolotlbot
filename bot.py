@@ -62,6 +62,7 @@ async def on_ready():
     emojis = ['💻', '🤖', '🚀', '🛫', '🇪🇸', '🇲🇽', '➗']    
     for emoji in emojis:
         await message.add_reaction(emoji)
+        
 @bot.event
 async def on_message(message):
     mutedchat = bot.get_channel(766656875256741898)
@@ -139,49 +140,6 @@ async def on_member_join(member): #triggers on member join
     await member.dm_channel.send(f"Hi, {member.name}, welcome to Axolotl Clan!\nMake sure to look at the <#763387839522013194> and <#758025770181460015>\nUse the join role channel to get your class or game roles!") #welcome and informational message
     await main.send(f"{member.name} is here!")
 
-@bot.event
-async def on_reaction_add(reaction, user):
-    roles = bot.get_channel(797867864593006592)
-    axolotl = bot.get_user(791048344956043274)
-    axolotlclan = bot.get_guild(591065297692262410)
-
-    emojiRoles = {'📐': 'Precalc', '📖': 'ELA (Thompson)', '🛠️': 'IED', '📏': 'Algebra 2', '🌎': 'World History',
-                  '🟦': 'Salem', '⬛': 'Plymouth', '🟥': 'Canton', '📢': 'Announcements', '👨‍🔬': 'Biology', '🇫🇷': 'French', 
-                  '🇺🇳': 'AP World', '📕': 'ELA (Wright)', '🕵️‍♂️': 'Gulag', '🎙️': 'Debate', '💻': 'CSE', '🤖': 'Robotics', 
-                  '🚀': 'Physics (Gell)', '🛫': 'Physics (Hiske)', '🇪🇸': 'Spanish 2', '🇲🇽': 'Spanish 3', '➗': 'Math Olympiad'}
-
-    if reaction.message.channel != roles:
-        return
-    elif user == axolotl:
-        return
-    else:
-        role = discord.utils.get(axolotlclan.roles, name = emojiRoles[str(reaction)])
-        if role in user.roles:
-            await user.remove_roles(role)
-        else:
-            await user.add_roles(role)
-        await reaction.remove(user)
-
-@bot.event
-async def on_reaction_remove(reaction, user):
-    print('hi')
-    roles = bot.get_channel(797867864593006592)
-    axolotl = bot.get_user(791048344956043274)
-    axolotlclan = bot.get_guild(591065297692262410)
-
-    emojiRoles = {'📐': 'Precalc', '📖': 'ELA (Thompson)', '🛠️': 'IED', '📏': 'Algebra 2', '🌎': 'World History',
-                '🟦': 'Salem', '⬛': 'Plymouth', '🟥': 'Canton', '📢': 'Announcements', '👨‍🔬': 'Biology', '🇫🇷': 'French', 
-                '🇺🇳': 'AP World', '📕': 'ELA (Wright)', '🕵️‍♂️': 'Gulag', '🎙️': 'Debate', '💻': 'CSE', '🤖': 'Robotics', 
-                '🚀': 'Physics (Gell)', '🛫': 'Physics (Hiske)', '🇪🇸': 'Spanish 2', '🇲🇽': 'Spanish 3', '➗': 'Math Olympiad'}
-
-    if reaction.message.channel != roles:
-        return
-    elif user == axolotl:
-        return
-    else:
-        role = discord.utils.get(axolotlclan.roles, name = emojiRoles[str(reaction)])
-        await user.remove_roles(role)
-
 @bot.command(aliases=['lvl', 'level'])
 async def _level(ctx):
     message = ctx.message
@@ -215,6 +173,6 @@ async def _invites(ctx):
         await message.author.add_roles(vip)
         
     await ctx.send(embed = invitesEmbed)
-
+    
 
 bot.run(TOKEN) #runs the program
