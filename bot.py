@@ -4,6 +4,7 @@ import json     #python imports
 import random
 from datetime import datetime
 from cogs import Games
+import sqlite3
 
 import discord
 from dotenv import load_dotenv  #discord imports
