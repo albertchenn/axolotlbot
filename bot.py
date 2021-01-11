@@ -24,7 +24,7 @@ async def on_ready():
 
     roles = bot.get_channel(797867864593006592)
 
-    '''
+    
     reactionmessage = """:triangular_ruler: - precalc\n
                          :book: - ela (thompson)\n
                          :tools: - ied\n
@@ -64,7 +64,7 @@ async def on_ready():
     emojis = ['💻', '🤖', '🚀', '🛫', '🇪🇸', '🇲🇽', '➗']    
     for emoji in emojis:
         await message.add_reaction(emoji)
-    '''
+    
 @bot.event
 async def on_message(message):
     mutedchat = bot.get_channel(766656875256741898)

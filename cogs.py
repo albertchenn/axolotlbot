@@ -1,8 +1,7 @@
 #cogs.py
-import os
-import json     #python imports
+
 import random
-from datetime import datetime
+from datetime import datetime #python imports   
 import time
 
 import discord
