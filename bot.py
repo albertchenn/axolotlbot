@@ -3,6 +3,7 @@ import os
 import json     #python imports
 import random
 from datetime import datetime
+from cogs import Games
 
 import discord
 from dotenv import load_dotenv  #discord imports
@@ -23,6 +24,7 @@ async def on_ready():
 
     roles = bot.get_channel(797867864593006592)
 
+    '''
     reactionmessage = """:triangular_ruler: - precalc\n
                          :book: - ela (thompson)\n
                          :tools: - ied\n
@@ -62,7 +64,7 @@ async def on_ready():
     emojis = ['💻', '🤖', '🚀', '🛫', '🇪🇸', '🇲🇽', '➗']    
     for emoji in emojis:
         await message.add_reaction(emoji)
-        
+    '''
 @bot.event
 async def on_message(message):
     mutedchat = bot.get_channel(766656875256741898)
@@ -175,6 +177,7 @@ async def _level(ctx):
 
     await ctx.send(embed = levelinfoembed)
 
+
 @bot.command(aliases=['invites'])
 async def _invites(ctx):
     axolotlclan = bot.get_guild(591065297692262410)
@@ -197,5 +200,5 @@ async def _invites(ctx):
         
     await ctx.send(embed = invitesEmbed)
     
-
+bot.add_cog(Games(bot))
 bot.run(TOKEN) #runs the program
