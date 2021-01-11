@@ -47,6 +47,7 @@ class Games(commands.Cog):
             message = "Welcome to the main menu! We have three games to choose from!"
             messageEmbed = discord.Embed(title = message)
             await ctx.send(embed = messageEmbed)
+            time.sleep(0.5)
             gameMessage = "Would you like to play rock-paper-scissors, a guessing game, snakes and ladders, or a trivia game? Enter snakes + ladders - 1, guessing game - 2, rock paper scissors - 3. "
             gameEmbed = discord.Embed(title = "Make ur decision", description = gameMessage)
             await ctx.send(embed = gameEmbed)
