@@ -13,7 +13,7 @@ from discord.ext import commands
 
 with open('levels.json', 'r') as f:
     levels = json.load(f)           #takes the json file and makes it a "levels" dictionary
-    
+
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN') #taking environment variables from .env
 
@@ -163,8 +163,10 @@ async def on_reaction_add(reaction, user):
         role = discord.utils.get(axolotlclan.roles, name = emojiRoles[str(reaction)])
         if role in user.roles:
             await user.remove_roles(role)
+            await user.send('you were removed from the ' + role.name + ' role in axolotl clan')
         else:
             await user.add_roles(role)
+            await user.send('you got the ' + role.name + ' role in axolotl clan')
         await reaction.remove(user)
 
 @bot.command(aliases=['lvl', 'level'])
@@ -180,7 +182,6 @@ async def _level(ctx):
     await ctx.send(embed = levelinfoembed)
 
 @bot.command(aliases = ['playsong'])
-@commands.has_any_role('Admin', 'Moderator')
 async def _playsong(ctx, *args):
     user = ctx.author
     vc = user.voice.channel
@@ -192,10 +193,10 @@ async def _playsong(ctx, *args):
     elif args[0] in songs:
         if vc != None:
             voice_channel = await vc.connect()
-            voice_channel.stop()
             channel = vc.name
-            await ctx.send("user is in " + channel)
-            await ctx.send("do '.stop' to stop the song")
+            await ctx.send(user.name + " is in " + channel)
+            await ctx.send("do '.stop' to stop the song, (you have to make it leave for it to play another song)")
+            
             voice_channel.play(discord.FFmpegPCMAudio("songs/" + args[0] + ".mp3"))
             while voice_channel.is_playing():
                 await asyncio.sleep(1)
@@ -203,8 +204,19 @@ async def _playsong(ctx, *args):
             voice_channel.stop()
         else:
             await ctx.send('User is not in a channel')
+    
+    elif args[0] == "all":
+        voice_channel = await vc.connect()
+        channel = vc.name
+        await ctx.send("user is in " + channel)
+        await ctx.send("do '.stop' to stop the song, (you have to make it leave for it to play another song)")
+        for song in songs:
+            voice_channel.play(discord.FFmpegPCMAudio("songs/" + song + ".mp3"))
+            while voice_channel.is_playing():
+                await asyncio.sleep(1)
     else:
         await ctx.send("could not find that song")
+
 @bot.command(aliases = ['stop'])
 async def _stop(ctx):
     user = ctx.author
@@ -212,8 +224,9 @@ async def _stop(ctx):
 
     if vc != None:
         await ctx.voice_client.disconnect()
+        await ctx.send("axolotl has left the vc")
     else:
-        ctx.send('User is not in a channel')
+        await ctx.send('User is not in a channel')
 
 @bot.command(aliases=['invites'])
 async def _invites(ctx):
