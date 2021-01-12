@@ -1,4 +1,5 @@
 #bot.py
+import asyncio
 import os
 import json     #python imports
 import random
@@ -130,7 +131,7 @@ async def on_message(message):
             else:   #any message sent
                 added_xp = random.randint(1, 5) #xp randomized from 1-5, may change later
                 levels[str(message.author.id)]["xp"] += added_xp #increase the xp by the randomized xp
-        with open('levels.json', 'w') as f:
+        with open('levels.json', 'w') as f: 
             f.write(json.dumps(levels, indent=4, sort_keys=True)) #save the dictionary of dictionaries of levels and xp to "levels.json"
         f.close()
 
@@ -140,7 +141,7 @@ async def on_message(message):
 async def on_member_join(member): #triggers on member join
     main = bot.get_channel(763475634278105088)
 
-    await member.dm_channel.send(f"Hi, {member.name}, welcome to Axolotl Clan!\nMake sure to look at the <#763387839522013194> and <#758025770181460015>\nUse the join role channel to get your class or game roles!") #welcome and informational message
+    await member.dm_channel.send(f"Hi, {member.name}, welcome to Axolotl Clan!\nMake sure to look at the <#763387839522013194> and <#758025770181460015>\nUse the school roles channel to get your class or game roles!") #welcome and informational message
     await main.send(f"{member.name} is here!")
 
 @bot.event
@@ -178,6 +179,40 @@ async def _level(ctx):
 
     await ctx.send(embed = levelinfoembed)
 
+@bot.command(aliases = ['playsong'])
+@commands.has_role('Admin', )
+async def _playsong(ctx, *args):
+    user = ctx.author
+    vc = user.voice.channel
+    channel = None
+    songs = ["pog", "pogU", "Wait", "what", "manhunt", "bestsong", "men"]
+    if len(args) == 0:
+        await ctx.send('the songs that are currently available are: ' + str(songs))
+
+    elif args[0] in songs:
+        if vc != None:
+            channel = vc.name
+            await ctx.send("user is in " + channel)
+            await ctx.send("do '.stop' to stop the song")
+            voice_channel = await vc.connect()
+            voice_channel.play(discord.FFmpegPCMAudio("songs/" + args[0] + ".mp3"))
+            while voice_channel.is_playing():
+                await asyncio.sleep(1)
+
+            voice_channel.stop()
+        else:
+            await ctx.send('User is not in a channel')
+    else:
+        await ctx.send("could not find that song")
+@bot.command(aliases = ['stop'])
+async def _stop(ctx):
+    user = ctx.author
+    vc = user.voice.channel
+
+    if vc != None:
+        await ctx.voice_client.disconnect()
+    else:
+        ctx.send('User is not in a channel')
 
 @bot.command(aliases=['invites'])
 async def _invites(ctx):
