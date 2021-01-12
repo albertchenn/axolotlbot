@@ -180,7 +180,7 @@ async def _level(ctx):
     await ctx.send(embed = levelinfoembed)
 
 @bot.command(aliases = ['playsong'])
-@commands.has_role('Admin', )
+@commands.has_any_role('Admin', 'Moderator')
 async def _playsong(ctx, *args):
     user = ctx.author
     vc = user.voice.channel
@@ -191,10 +191,11 @@ async def _playsong(ctx, *args):
 
     elif args[0] in songs:
         if vc != None:
+            voice_channel = await vc.connect()
+            voice_channel.stop()
             channel = vc.name
             await ctx.send("user is in " + channel)
             await ctx.send("do '.stop' to stop the song")
-            voice_channel = await vc.connect()
             voice_channel.play(discord.FFmpegPCMAudio("songs/" + args[0] + ".mp3"))
             while voice_channel.is_playing():
                 await asyncio.sleep(1)
