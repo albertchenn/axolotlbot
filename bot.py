@@ -3,9 +3,9 @@ import asyncio
 import os
 import json     #python imports
 import random
-from datetime import datetime
+from datetime import datetime, date
+
 from cogs import Games
-import sqlite3
 
 import discord
 from dotenv import load_dotenv  #discord imports
@@ -17,16 +17,29 @@ with open('levels.json', 'r') as f:
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN') #taking environment variables from .env
 
-bot = commands.Bot(command_prefix = ".") #creates bot instance
+intents = discord.Intents().all()
+bot = commands.Bot(command_prefix = ".", intents =  intents) #creates bot instance
+
+main = bot.get_channel(763475634278105088)
+mutedchat = bot.get_channel(766656875256741898)
+spam = bot.get_channel(768876717422936115)
+music = bot.get_channel(757970344496726025) #channel declarations
+gulag = bot.get_channel(788434232401461248)               
+joinrole = bot.get_channel(765560283116208158)
+relay = bot.get_channel(798991401102475384)
+roles = bot.get_channel(797867864593006592)
+
+axolotl = bot.get_user(791048344956043274)
+rythm = bot.get_user(235088799074484224) #user declarations
+dyno = bot.get_user(155149108183695360)
+
+axolotlclan = bot.get_guild(591065297692262410) #guild declarations
 
 @bot.event
 async def on_ready():
     print('{} is on'.format(bot.user.name))                                   #gives notification when bot is online and sets game message to "Playing with Axolotls"
     await bot.change_presence(activity=discord.Game(name='with Axolotls'))
 
-    roles = bot.get_channel(797867864593006592)
-
-    
     reactionmessage = """:triangular_ruler: - precalc\n
                          :book: - ela (thompson)\n
                          :tools: - ied\n
@@ -66,25 +79,13 @@ async def on_ready():
     emojis = ['💻', '🤖', '🚀', '🛫', '🇪🇸', '🇲🇽', '➗']    
     for emoji in emojis:
         await message.add_reaction(emoji)
-    
+                
 @bot.event
 async def on_message(message):
-    mutedchat = bot.get_channel(766656875256741898)
-    spam = bot.get_channel(768876717422936115)
-    music = bot.get_channel(757970344496726025) #channel declarations
-    gulag = bot.get_channel(788434232401461248)               
-    joinrole = bot.get_channel(765560283116208158)
-
-    axolotl = bot.get_user(791048344956043274)
-    rythm = bot.get_user(235088799074484224) #user declarations
-    dyno = bot.get_user(155149108183695360)
-
-    axolotlclan = bot.get_guild(591065297692262410) #guild declarations
-
     bannedchannels = [mutedchat, spam, music, gulag, joinrole]   #makes lists of blacklisted channels
     bannedusers = [axolotl, rythm, dyno]            #makes lists of blacklisted users
 
-    if message.author == bannedusers:
+    if message.author in bannedusers:
         return          #doesn't do anything if a banned user(bot) speaks
 
     if not message.content:
@@ -106,6 +107,13 @@ async def on_message(message):
         
         for message in msgs: #iterate through all the sent messages
             await message.delete() #delete them ;)
+
+    if message.channel == relay and message.content[0] != "@":
+        await main.send(message.content)
+    if message.channel == main:
+        relaymessage = message.author.name + ": " + message.content
+        relaymessageembed = discord.Embed(title = relaymessage)
+        await relay.send(embed = relaymessageembed)
 
     if message.channel not in bannedchannels and message.content[0] != "." and message.content[0] != "?" and message.content[0] != "!": #check if it's not a spam channel or a bot command
         if str(message.author.id) not in levels: #if a new user joins and says something, create a new dictionary in the json file 
@@ -139,17 +147,11 @@ async def on_message(message):
 
 @bot.event
 async def on_member_join(member): #triggers on member join
-    main = bot.get_channel(763475634278105088)
-
-    await member.dm_channel.send(f"Hi, {member.name}, welcome to Axolotl Clan!\nMake sure to look at the <#763387839522013194> and <#758025770181460015>\nUse the school roles channel to get your class or game roles!") #welcome and informational message
+    await member.send(f"Hi, {member.name}, welcome to Axolotl Clan!\nMake sure to look at the <#763387839522013194> and <#758025770181460015>\nUse the school roles channel to get your class or game roles!") #welcome and informational message
     await main.send(f"{member.name} is here!")
-
+   
 @bot.event
 async def on_reaction_add(reaction, user):
-    roles = bot.get_channel(797867864593006592)
-    axolotl = bot.get_user(791048344956043274)
-    axolotlclan = bot.get_guild(591065297692262410)
-
     emojiRoles = {'📐': 'Precalc', '📖': 'ELA (Thompson)', '🛠️': 'IED', '📏': 'Algebra 2', '🌎': 'World History',
                   '🟦': 'Salem', '⬛': 'Plymouth', '🟥': 'Canton', '📢': 'Announcements', '👨‍🔬': 'Biology', '🇫🇷': 'French', 
                   '🇺🇳': 'AP World', '📕': 'ELA (Wright)', '🕵️‍♂️': 'Gulag', '🎙️': 'Debate', '💻': 'CSE', '🤖': 'Robotics', 
@@ -171,15 +173,16 @@ async def on_reaction_add(reaction, user):
 
 @bot.command(aliases=['lvl', 'level'])
 async def _level(ctx):
-    message = ctx.message
-    
-    level = "level: " + str(levels[str(message.author.id)]["level"]) + "\n" #accesses the level of the person who sent it from the json file.   
-    msgs = "xp: " + str(levels[str(message.author.id)]["xp"]) + "/" + str(100 * (levels[str(message.author.id)]["level"] - 1) + 50) #accesses the xp needed from the json file, (current xp/needed xp)
-    
-    levelinfoembed = discord.Embed(title = level + msgs, color = 0xff85a2, timestamp=datetime.utcnow()) #creates embed of levels (and sets a timestamp)
-    levelinfoembed.set_footer(text='Retrieved Data')
+    if ctx.channel == spam:
+        message = ctx.message
+        
+        level = "level: " + str(levels[str(message.author.id)]["level"]) + "\n" #accesses the level of the person who sent it from the json file.   
+        msgs = "xp: " + str(levels[str(message.author.id)]["xp"]) + "/" + str(100 * (levels[str(message.author.id)]["level"] - 1) + 50) #accesses the xp needed from the json file, (current xp/needed xp)
+        
+        levelinfoembed = discord.Embed(title = level + msgs, color = 0xff85a2, timestamp=datetime.utcnow()) #creates embed of levels (and sets a timestamp)
+        levelinfoembed.set_footer(text='Retrieved Data')
 
-    await ctx.send(embed = levelinfoembed)
+        await ctx.send(embed = levelinfoembed)
 
 @bot.command(aliases = ['playsong'])
 async def _playsong(ctx, *args):
@@ -187,7 +190,10 @@ async def _playsong(ctx, *args):
     vc = user.voice.channel
     channel = None
     songs = ["pog", "pogU", "Wait", "what", "manhunt", "bestsong", "men"]
-    if len(args) == 0:
+    if vc == None:
+        await ctx.send("please join a vc before using this command")
+
+    elif len(args) == 0:
         await ctx.send('the songs that are currently available are: ' + str(songs))
 
     elif args[0] in songs:
@@ -196,11 +202,17 @@ async def _playsong(ctx, *args):
             channel = vc.name
             await ctx.send(user.name + " is in " + channel)
             await ctx.send("do '.stop' to stop the song, (you have to make it leave for it to play another song)")
-            
-            voice_channel.play(discord.FFmpegPCMAudio("songs/" + args[0] + ".mp3"))
-            while voice_channel.is_playing():
-                await asyncio.sleep(1)
+            if len(args) == 1:
+                voice_channel.play(discord.FFmpegPCMAudio("songs/" + args[0] + ".mp3"))
+                while voice_channel.is_playing():
+                    await asyncio.sleep(1)        
 
+            if args[1] == "loop":
+                await ctx.send("you have chosen the 'loop' switch, it will play endlessly unless you stop it.")
+                while True:
+                    voice_channel.play(discord.FFmpegPCMAudio("songs/" + args[0] + ".mp3"))
+                    while voice_channel.is_playing():
+                        await asyncio.sleep(1)  
             voice_channel.stop()
         else:
             await ctx.send('User is not in a channel')
@@ -230,7 +242,6 @@ async def _stop(ctx):
 
 @bot.command(aliases=['invites'])
 async def _invites(ctx):
-    axolotlclan = bot.get_guild(591065297692262410)
     message = ctx.message
 
     totalInvites = 0
@@ -249,6 +260,43 @@ async def _invites(ctx):
         await message.author.add_roles(vip)
         
     await ctx.send(embed = invitesEmbed)
-    
+
+@bot.command(aliases=['ping'])
+@commands.has_role('Admin')
+async def _ping(ctx, *args):
+    namelist = []
+    for member in ctx.guild.members:
+        namelist.append(member.mention)
+    if args[0] in namelist:        
+        ping = args[0]
+        for _ in range(5): #iterate 5 times
+            await ctx.send(ping) #ping the person in dm channel
+    else:
+        await ctx.send('could not find that user')
+
+@bot.command(aliases=["setlevel"])
+@commands.has_role('Admin')
+async def _setlevel(ctx, *args):
+    foundUser = False
+    if len(args) != 2:
+        await ctx.send("invalid format, please do .setlevel (user) (level)")
+        return
+    elif args[1] > 500:
+        await ctx.send("you can't put a level more than 500")
+        return
+    else:
+        for user in ctx.guild.members:
+            if args[0] == user.name:
+                levels[str(user.id)] = {"xp": 1, "level": int(args[1])} 
+                await ctx.send(f"set **{user.name}**'s level to {args[1]}")
+                foundUser = True
+                break
+    if foundUser == False:
+        await ctx.send("could not find that user")
+
+    with open('levels.json', 'w') as f: 
+        f.write(json.dumps(levels, indent=4, sort_keys=True)) #save the dictionary of dictionaries of levels and xp to "levels.json"
+    f.close()
+
 bot.add_cog(Games(bot))
 bot.run(TOKEN) #runs the program

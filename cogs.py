@@ -46,7 +46,7 @@ class Games(commands.Cog):
         spam = self.bot.get_channel(768876717422936115)
         if ctx.channel == spam:
             while play_again.lower() == "yes":
-                message = "Welcome to the main menu! We have three games to choose from!"
+                message = "Welcome to the main menu! We have three games to choose from! (type exit at any time to exit)"
                 messageEmbed = discord.Embed(title = message)
                 await ctx.send(embed = messageEmbed)
                 time.sleep(0.5)
@@ -203,4 +203,5 @@ class Games(commands.Cog):
                 play_again = play_again.content
             
             await ctx.send("Goodbye!")
+
     
