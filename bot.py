@@ -130,7 +130,8 @@ async def on_message(message):
                 levelupembed = discord.Embed(title = levelUP, color = 0xFFC0CB) #create embed with level up message
                 await message.channel.send(embed = levelupembed) #send embed; YOU HAVE TO SEND THE EMBED FOR IT TO REGISTER
 
-                if levels[str(message.author.id)]["level"] >= 10:
+                vip = discord.utils.get(axolotlclan.roles, name = "VIP")  #accesses the role vip, and adds it to the user
+                if levels[str(message.author.id)]["level"] >= 10 and vip not in message.author.roles:
                     viprank = str("congrats, you earned the VIP role!")
                     vipembed = discord.Embed(title = viprank, color = 0xff85a2) #vip embed once they reach level 25
                     await message.channel.send(embed = vipembed)
@@ -261,12 +262,12 @@ async def _invites(ctx):
     invitesmessage = f"You've invited {totalInvites} member(s) to the server!"
     invitesEmbed = discord.Embed(title = invitesmessage, color = 0xff85a2, timestamp=datetime.utcnow())
     
-    if totalInvites >= 3:
+    vip = discord.utils.get(axolotlclan.roles, name = "VIP")  #accesses the role vip, and adds it to the user
+    if totalInvites >= 3 and vip not in ctx.author.roles:
         viprank = str("congrats, you earned the VIP role!")
         vipembed = discord.Embed(title = viprank, color = 0xff85a2) #vip embed once they reach level 25
         await message.channel.send(embed = vipembed)
 
-        vip = discord.utils.get(axolotlclan.roles, name = "VIP")  #accesses the role vip, and adds it to the user
         await message.author.add_roles(vip)
         
     await ctx.send(embed = invitesEmbed)
@@ -290,6 +291,9 @@ async def _setlevel(ctx, *args):
     foundUser = False
     if len(args) != 2:
         await ctx.send("invalid format, please do .setlevel (user) (level)")
+        return
+    elif int(args[1]) < 0:
+        await ctx.send("you can't have a negative level")
         return
     else:
         for user in ctx.guild.members:
