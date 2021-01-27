@@ -41,7 +41,7 @@ class Games(commands.Cog):
         return x
    
     @commands.command()
-    async def play(self, ctx):
+    async def play(self, ctx, help="plays a game, credit goes to wayvid and weighson for their cse project"):
         play_again = "yes"
         spam = self.bot.get_channel(768876717422936115)
         if ctx.channel == spam:

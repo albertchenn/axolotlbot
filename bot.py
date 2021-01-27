@@ -1,10 +1,10 @@
 #bot.py
+from admin import Admin
 import asyncio
 import os
 import json     #python imports
 import random
-from datetime import datetime, date
-
+from datetime import datetime
 from cogs import Games
 
 import discord
@@ -108,7 +108,7 @@ async def on_message(message):
             msgs.append(sent_message) #log the message
         
         for message in msgs: #iterate through all the sent messages
-            await message.delete() #delete them ;)
+            await message.delete() #delete them 
 
     if message.channel == relay and message.content[0] != "@":
         await main.send(message.content)
@@ -131,14 +131,17 @@ async def on_message(message):
                 await message.channel.send(embed = levelupembed) #send embed; YOU HAVE TO SEND THE EMBED FOR IT TO REGISTER
 
                 vip = discord.utils.get(axolotlclan.roles, name = "VIP")  #accesses the role vip, and adds it to the user
+                mvp = discord.utils.get(axolotlclan.roles, name = "MVP")
                 if levels[str(message.author.id)]["level"] >= 10 and vip not in message.author.roles:
                     viprank = str("congrats, you earned the VIP role!")
                     vipembed = discord.Embed(title = viprank, color = 0xff85a2) #vip embed once they reach level 25
                     await message.channel.send(embed = vipembed)
-
-                    vip = discord.utils.get(axolotlclan.roles, name = "VIP")  #accesses the role vip, and adds it to the user
                     await message.author.add_roles(vip)
-
+                elif levels[str(message.author.id)]["level"] >= 20 and mvp not in message.author.roles:
+                    mvprank = str("congrats, you earned the MVP role!")
+                    mvpembed = discord.Embed(title = mvprank, color = 0xff85a2)
+                    await message.channel.send(embed = mvpembed)
+                    await message.author.add_roles(mvp)
             else:   #any message sent
                 added_xp = random.randint(1, 5) #xp randomized from 1-5, may change later
                 levels[str(message.author.id)]["xp"] += added_xp #increase the xp by the randomized xp
@@ -180,21 +183,24 @@ async def on_reaction_add(reaction, user):
             await user.send('you got the ' + role.name + ' role in axolotl clan')
         await reaction.remove(user)
 
-@bot.command(aliases=['lvl', 'level'])
-async def _level(ctx):
+@bot.command(aliases=['lvl', 'level'], help="Displays someones level in axolotl clan")
+async def _level(ctx, user: discord.Member):
     spam = bot.get_channel(768876717422936115)
     if ctx.channel == spam:
-        message = ctx.message
-        
-        level = "level: " + str(levels[str(message.author.id)]["level"]) + "\n" #accesses the level of the person who sent it from the json file.   
-        msgs = "xp: " + str(levels[str(message.author.id)]["xp"]) + "/" + str(100 * (levels[str(message.author.id)]["level"] - 1) + 50) #accesses the xp needed from the json file, (current xp/needed xp)
-        
-        levelinfoembed = discord.Embed(title = level + msgs, color = 0xff85a2, timestamp=datetime.utcnow()) #creates embed of levels (and sets a timestamp)
-        levelinfoembed.set_footer(text='Retrieved Data')
+        if str(user.id) in levels:
+            level = "level: " + str(levels[str(user.id)]["level"]) + "\n" #accesses the level of the person who sent it from the json file.   
+            msgs = "xp: " + str(levels[str(user.id)]["xp"]) + "/" + str(100 * (levels[str(user.id)]["level"] - 1) + 50) #accesses the xp needed from the json file, (current xp/needed xp)
+            
+            levelinfoembed = discord.Embed(title = level + msgs, color = 0xff85a2, timestamp=datetime.utcnow()) #creates embed of levels (and sets a timestamp)
+            levelinfoembed.set_footer(text='Retrieved Data')
 
-        await ctx.send(embed = levelinfoembed)
+            await ctx.send(embed = levelinfoembed)
+        else:
+            levelinfoembed = discord.Embed(title = "I couldn't find that user, try mentioning them instead", color = 0xff85a2, timestamp=datetime.utcnow())
+            await ctx.send(embed = levelinfoembed)
 
-@bot.command(aliases = ['playsong'])
+@bot.command(name = 'playsong', help="plays an mp3 song, do .playsong for more info")
+@commands.has_role('VIP')
 async def _playsong(ctx, *args):
     user = ctx.author
     vc = user.voice.channel
@@ -208,7 +214,7 @@ async def _playsong(ctx, *args):
 
     elif args[0] in songs:
         if vc != None:
-            voice_channel = await vc.connect()
+            voice_channel = await vc.connect() 
             channel = vc.name
             await ctx.send(user.name + " is in " + channel)
             await ctx.send("do '.stop' to stop the song, (you have to make it leave for it to play another song)")
@@ -239,7 +245,7 @@ async def _playsong(ctx, *args):
     else:
         await ctx.send("could not find that song")
 
-@bot.command(aliases = ['stop'])
+@bot.command(name = 'stop', help='leaves the vc')
 async def _stop(ctx):
     user = ctx.author
     vc = user.voice.channel
@@ -250,7 +256,7 @@ async def _stop(ctx):
     else:
         await ctx.send('User is not in a channel')
 
-@bot.command(aliases=['invites'])
+@bot.command(name='invites', help='checks how many invites you have, if you have three or higher you get vip')
 async def _invites(ctx):
     axolotlclan = bot.get_guild(591065297692262410)
     message = ctx.message
@@ -272,20 +278,13 @@ async def _invites(ctx):
         
     await ctx.send(embed = invitesEmbed)
 
-@bot.command(aliases=['ping'])
+@bot.command(name='ping', help="pings someone 5 times")
 @commands.has_role('Admin')
-async def _ping(ctx, *args):
-    namelist = []
-    for member in ctx.guild.members:
-        namelist.append(member.mention)
-    if args[0] in namelist:        
-        ping = args[0]
-        for _ in range(5): #iterate 5 times
-            await ctx.send(ping) #ping the person in dm channel
-    else:
-        await ctx.send('could not find that user')
+async def _ping(ctx, user: discord.Member):
+    for _ in range(5):
+        await ctx.send(user.mention)
 
-@bot.command(aliases=["setlevel"])
+@bot.command(name="setlevel", help="sets someone level to specific number")
 @commands.has_role('Admin')
 async def _setlevel(ctx, *args):
     foundUser = False
@@ -310,4 +309,6 @@ async def _setlevel(ctx, *args):
     f.close()
 
 bot.add_cog(Games(bot))
+bot.add_cog(Admin(bot))
+
 bot.run(TOKEN) #runs the program
