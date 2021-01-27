@@ -128,7 +128,7 @@ async def on_message(message):
                     await adminlogs.send(embed=deleteEmbed)
                     return  
     
-    if message.content == None:
+    if len(message.content) == 0:
         return
         
     if message.channel not in bannedchannels and message.content[0] != "." and message.content[0] != "?" and message.content[0] != "!": #check if it's not a spam channel or a bot command
