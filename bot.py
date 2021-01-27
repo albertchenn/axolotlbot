@@ -77,21 +77,19 @@ async def on_message(message):
     gulag = bot.get_channel(788434232401461248)               
     joinrole = bot.get_channel(765560283116208158)
     relay = bot.get_channel(798991401102475384)
-
-    axolotl = bot.get_user(791048344956043274)
-    rythm = bot.get_user(235088799074484224) #user declarations
-    dyno = bot.get_user(155149108183695360)
+    adminlogs = bot.get_channel(800417369548914708)
 
     axolotlclan = bot.get_guild(591065297692262410) #guild declarations
 
+    vip = discord.utils.get(axolotlclan.roles, name = "VIP")  #accesses the role vip, and adds it to the user
+    mvp = discord.utils.get(axolotlclan.roles, name = "MVP")
+    noMedia = discord.utils.get(axolotlclan.roles, name = "no media")
+
     bannedchannels = [mutedchat, spam, music, gulag, joinrole]   #makes lists of blacklisted channels
-    bannedusers = [axolotl, rythm, dyno]            #makes lists of blacklisted users
+    images = ['.jpg', '.png', '.jpeg']
 
-    if message.author in bannedusers:
-        return          #doesn't do anything if a banned user(bot) speaks
-
-    if not message.content:
-        return          #doesn't do anything if no message is send; may change later
+    if message.author.bot:
+        return
 
     if "axolotl bot is bad" in message.content.lower(): #triggers on the message "axolotl bot is bad"
         #await message.author.create_dm()      #starts a "channel" which is actually just a dm
@@ -116,7 +114,23 @@ async def on_message(message):
         relaymessage = message.author.name + ": " + message.content
         relaymessageembed = discord.Embed(title = relaymessage)
         await relay.send(embed = relaymessageembed)
-
+    if noMedia in message.author.roles:
+        deleteEmbed = discord.Embed(color = 0xff85a2, timestamp = datetime.utcnow())
+        deleteEmbed.title = f"i deleted media sent by {message.author.name} in {message.channel}"
+        if  "https://" in message.content:
+            await message.delete()
+            await adminlogs.send(embed=deleteEmbed)
+        if message.attachments != []:
+            url = message.attachments[0].url
+            for ext in images:
+                if url.endswith(ext):
+                    await message.delete()
+                    await adminlogs.send(embed=deleteEmbed)
+                    return  
+    
+    if message.content == None:
+        return
+        
     if message.channel not in bannedchannels and message.content[0] != "." and message.content[0] != "?" and message.content[0] != "!": #check if it's not a spam channel or a bot command
         if str(message.author.id) not in levels: #if a new user joins and says something, create a new dictionary in the json file 
             levels[str(message.author.id)] = {"xp": 1, "level": 1} 
@@ -130,8 +144,6 @@ async def on_message(message):
                 levelupembed = discord.Embed(title = levelUP, color = 0xFFC0CB) #create embed with level up message
                 await message.channel.send(embed = levelupembed) #send embed; YOU HAVE TO SEND THE EMBED FOR IT TO REGISTER
 
-                vip = discord.utils.get(axolotlclan.roles, name = "VIP")  #accesses the role vip, and adds it to the user
-                mvp = discord.utils.get(axolotlclan.roles, name = "MVP")
                 if levels[str(message.author.id)]["level"] >= 10 and vip not in message.author.roles:
                     viprank = str("congrats, you earned the VIP role!")
                     vipembed = discord.Embed(title = viprank, color = 0xff85a2) #vip embed once they reach level 25

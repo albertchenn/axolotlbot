@@ -68,3 +68,32 @@ class Admin(commands.Cog):
             timeinEmbed.title = f"{user.name} was sent out of timeout"
 
         await ctx.send(embed=timeinEmbed)
+
+    @commands.command(name='mediamute', help="mutes them from media")
+    @commands.has_any_role('Admin', 'Moderator', 'Trial Moderator')
+    async def mediamute(self, ctx, user: discord.Member):
+        mediamute = discord.utils.get(ctx.guild.roles, name = 'no media')
+
+        mediamuteEmbed = discord.Embed(color = 0xe75480, timestamp = datetime.utcnow())
+        if mediamute in user.roles:
+            mediamuteEmbed.title = "that user is already muted from media"
+        else:
+            mediamuteEmbed.title = f"{user.name} was muted from sending media"
+            await user.add_roles(mediamute)
+        
+        await ctx.send(embed=mediamuteEmbed)
+
+    @commands.command(name='mediaunmute', help="unmutes them from media")
+    @commands.has_any_role('Admin', 'Moderator', 'Trial Moderator')
+    async def mediaunmute(self, ctx, user: discord.Member):
+        unmediamute = discord.utils.get(ctx.guild.roles, name = 'no media')
+
+        unmediamuteEmbed = discord.Embed(color = 0xe75480, timestamp = datetime.utcnow())
+        if unmediamute not in user.roles:
+            unmediamuteEmbed.title = "that user is already unmuted from media"
+        else:
+            unmediamuteEmbed.title = f"{user.name} was unmuted from sending media"
+            await user.remove_roles(unmediamute)
+        
+        await ctx.send(embed=unmediamuteEmbed)
+    
