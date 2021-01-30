@@ -35,13 +35,12 @@ class Games(commands.Cog):
             97: 65
         }
 
-    
     def playermove(self):           # the playermove function is a function that rolls the dice for the snakes and ladders game
         x = random.randint(1,6)
         return x
    
     @commands.command()
-    async def play(self, ctx, help="plays a game, credit goes to wayvid and weighson for their cse project"):
+    async def playgame(self, ctx, help="plays a game, credit goes to wayvid and weighson for their cse project"):
         play_again = "yes"
         spam = self.bot.get_channel(768876717422936115)
         if ctx.channel == spam:

@@ -86,7 +86,7 @@ async def on_message(message):
     noMedia = discord.utils.get(axolotlclan.roles, name = "no media")
 
     bannedchannels = [mutedchat, spam, music, gulag, joinrole]   #makes lists of blacklisted channels
-    images = ['.jpg', '.png', '.jpeg']
+    images = ['.jpg', '.png', '.jpeg', '.gif']
 
     if message.author.bot:
         return
@@ -211,13 +211,13 @@ async def _level(ctx, user: discord.Member):
             levelinfoembed = discord.Embed(title = "I couldn't find that user, try mentioning them instead", color = 0xff85a2, timestamp=datetime.utcnow())
             await ctx.send(embed = levelinfoembed)
 
-@bot.command(name = 'playsong', help="plays an mp3 song, do .playsong for more info")
+@bot.command(aliases = ['play','p'], help="plays an mp3 song, do .playsong for more info")
 @commands.has_role('VIP')
-async def _playsong(ctx, *args):
+async def _play(ctx, *args):
     user = ctx.author
     vc = user.voice.channel
     channel = None
-    songs = ["pog", "pogU", "Wait", "what", "manhunt", "bestsong", "men"]
+    songs = ["pog", "pogU", "Wait", "what", "manhunt", "bestsong", "men", "pathetique", "arabesque"]
     if vc == None:
         await ctx.send("please join a vc before using this command")
 
