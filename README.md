@@ -8,5 +8,5 @@ it's a bot made for the people of Axolotl Clan
 
 
 Install them with `pip install discord.py,
-                   pip install python-dotenv
+                   pip install python-dotenv,
                    pip install PyNaCl`
