@@ -1,12 +1,11 @@
-#cogs.py
-
+# cogs.py
+# python imports   
 import random
-from datetime import datetime #python imports   
+from datetime import datetime
 import time
 
+# discord imports
 import discord
-from discord import player
-from dotenv import load_dotenv  #discord imports
 from discord.ext import commands
 
 class Games(commands.Cog):
