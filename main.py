@@ -1,14 +1,18 @@
 # bot.py
+# local imports
 from admin import Admin
-import asyncio
-import os
-import json  # python imports
-import random
-from datetime import datetime
 from cogs import Games
 
+# builtin imports
+import asyncio
+import os
+import json
+import random
+from datetime import datetime
+
+# discord imports
 import discord
-from dotenv import load_dotenv  # discord imports
+from dotenv import load_dotenv
 from discord.ext import commands
 
 with open('levels.json', 'r') as f:
@@ -346,7 +350,7 @@ async def _setlevel(ctx, *args):
 
     with open('levels.json', 'w') as b:
         b.write(json.dumps(levels, indent=4,
-                           sort_keys=True))  # save the dictionary of dictionaries of levels and xp to "levels.json"
+                           sort_keys=True))  # save the dictionary of levels and xp to "levels.json"
     b.close()
 
 
