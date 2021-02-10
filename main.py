@@ -361,13 +361,15 @@ async def _leaderboard(ctx):
             # leaderboard.append(f"{person.name}: level {levels[user]['level']} at {levels[user]['xp']} xp")
             rawxp = 100 * (levels[user]['level'] - 1) + levels[user]['xp']
             rawxpleaderboard.append(rawxp)
-            rawxpdictionary[rawxp] = person.name
+            rawxpdictionary[rawxp] = person
 
     rawxpleaderboard.sort(reverse=True)
 
     for i in range(20):
         User = rawxpdictionary[rawxpleaderboard[i]]
-        leaderboard.append(f"{i + 1}. {User}'s raw xp: {rawxpleaderboard[i]}")
+        userLevel = levels[str(User.id)]["level"]
+        userXP = levels[str(User.id)]["xp"]
+        leaderboard.append(f"{i + 1}. {User.name}'s raw xp: **{rawxpleaderboard[i]}** | level: **{userLevel}** | xp: **{userXP}**")
 
     lbString = ""
     for place in leaderboard:
