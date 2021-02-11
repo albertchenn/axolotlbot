@@ -1,0 +1,23 @@
+{
+
+    "name": "axolotlbot",
+  
+    "description": "a bot for axolotl clan",
+  
+    "version": "0.1.0",
+  
+    "main": "main.py",
+  
+    "scripts": {
+  
+      "start": "python main.py"
+  
+    },
+  
+    "dependencies": {
+  
+      "discord.py": "1.6.0"
+  
+    }
+  
+  }
