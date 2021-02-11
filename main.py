@@ -20,7 +20,7 @@ with open('levels.json', 'r') as f:
     levels = json.load(f)  # takes the json file and makes it a "levels" dictionary
 
 load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')  # taking environment variables from .env
+TOKEN = os.environ["TOKEN"]  # taking environment variables from .env
 
 intents = discord.Intents().all()
 bot = commands.Bot(command_prefix=".", intents=intents)  # creates bot instance
@@ -389,4 +389,4 @@ async def _leaderboard(ctx):
 bot.add_cog(Games(bot))
 bot.add_cog(Admin(bot))
 
-bot.run(os.environ["TOKEN"])  # runs the program
+bot.run(TOKEN)  # runs the program
