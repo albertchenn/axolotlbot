@@ -364,7 +364,7 @@ async def _leaderboard(ctx):
         person = bot.get_user(int(user))
         if not person.bot:
             # leaderboard.append(f"{person.name}: level {levels[user]['level']} at {levels[user]['xp']} xp")
-            rawxp = (100 * (levels[user]['level'] - 1) - 1) * (levels[user]["level"]) / 2 + levels[user]["xp"]
+            rawxp = (100 * (levels[user]['level'] - 2) + 100) * (levels[user]["level"] - 1) / 2 + levels[user]["xp"]
             rawxpleaderboard.append(rawxp)
             rawxpdictionary[rawxp] = person
 
@@ -374,7 +374,7 @@ async def _leaderboard(ctx):
         User = rawxpdictionary[rawxpleaderboard[i]]
         userLevel = levels[str(User.id)]["level"]
         userXP = levels[str(User.id)]["xp"]
-        leaderboard.append(f"{i + 1}. {User.name}'s raw xp: **{rawxpleaderboard[i]}** | level: **{userLevel}** | xp: **{userXP}**")
+        leaderboard.append(f"{i + 1}. {User.name}'s raw xp: **{int(rawxpleaderboard[i])}** | level: **{userLevel}** | xp: **{userXP}**")
 
     lbString = ""
     for place in leaderboard:
