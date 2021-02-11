@@ -389,4 +389,5 @@ async def _leaderboard(ctx):
 bot.add_cog(Games(bot))
 bot.add_cog(Admin(bot))
 
+print(os.environ["TOKEN"])
 bot.run(os.environ["TOKEN"])  # runs the program
