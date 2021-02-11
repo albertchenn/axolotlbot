@@ -9,6 +9,7 @@ import os
 import json
 import random
 from datetime import datetime
+import os
 
 # discord imports
 import discord
@@ -388,4 +389,4 @@ async def _leaderboard(ctx):
 bot.add_cog(Games(bot))
 bot.add_cog(Admin(bot))
 
-bot.run(TOKEN)  # runs the program
+bot.run(os.environ["TOKEN"])  # runs the program
