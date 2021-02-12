@@ -9,7 +9,6 @@ import os
 import json
 import random
 from datetime import datetime
-import os
 
 # discord imports
 import discord
@@ -82,14 +81,15 @@ async def on_message(message):
     joinrole = bot.get_channel(765560283116208158)
     relay = bot.get_channel(798991401102475384)
     adminlogs = bot.get_channel(800417369548914708)
-
+    timeout = bot.get_channel(785898040254922784)
+    
     axolotlclan = bot.get_guild(591065297692262410)  # guild declarations
 
     vip = discord.utils.get(axolotlclan.roles, name="VIP")  # accesses the role vip, and adds it to the user
     mvp = discord.utils.get(axolotlclan.roles, name="MVP")
     no_media = discord.utils.get(axolotlclan.roles, name="no media")
 
-    bannedchannels = [mutedchat, spam, music, gulag, joinrole]  # makes lists of blacklisted channels
+    bannedchannels = [mutedchat, spam, music, gulag, joinrole, timeout]  # makes lists of blacklisted channels
     images = ['.jpg', '.png', '.jpeg', '.gif']
 
     if message.author.bot:
