@@ -259,12 +259,13 @@ async def _play(ctx, *args):
             channel = vc.name
             await ctx.send(user.name + " is in " + channel)
             await ctx.send("do '.stop' to stop the song, (you have to make it leave for it to play another song)")
+
             if len(args) == 1:
                 voice_channel.play(discord.FFmpegPCMAudio("songs/" + args[0] + ".mp3"))
                 while voice_channel.is_playing():
                     await asyncio.sleep(1)
 
-            if args[1] == "loop":
+            elif args[1] == "loop":
                 await ctx.send("you have chosen the 'loop' switch, it will play endlessly unless you stop it.")
                 while True:
                     voice_channel.play(discord.FFmpegPCMAudio("songs/" + args[0] + ".mp3"))
