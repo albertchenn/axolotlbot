@@ -5,15 +5,18 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
+TOKEN = os.environ["TOKEN"]  # taking environment variables from .env
 PASSWORD = os.environ["PASSWORD"]
-
+USER = os.environ["USR"]
+HOST = os.environ["HOST"]
 
 class SQL():
     def __init__(self):
-        self.lvls = mysql.connector.connect(user = "albert",
-                                            password = PASSWORD,
-                                            host = "192.168.1.8",
-                                            database = "levels")
+        self.lvls = mysql.connector.connect(user = USER,
+                                       password = PASSWORD,
+                                       host = HOST,
+                                       database = "levels")
+
         self.cursor = self.lvls.cursor()
     
     def checkExist(self, item):

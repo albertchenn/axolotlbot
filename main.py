@@ -7,7 +7,6 @@ from sql import SQL
 # builtin imports
 import asyncio
 import os
-import json
 import random
 from datetime import datetime
 
@@ -19,21 +18,21 @@ from discord.ext import commands
 # database
 import mysql.connector
 
-with open('levels.json', 'r') as f:
-    levels = json.load(f)  # takes the json file and makes it a "levels" dictionary
-
 load_dotenv()
 TOKEN = os.environ["TOKEN"]  # taking environment variables from .env
 PASSWORD = os.environ["PASSWORD"]
+USER = os.environ["USR"]
+HOST = os.environ["HOST"]
 
 intents = discord.Intents().all()
 bot = commands.Bot(command_prefix=".", intents=intents)  # creates bot instance
 
 sql = SQL()
 
-lvls = mysql.connector.connect(user = "albert",
+
+lvls = mysql.connector.connect(user = USER,
                                password = PASSWORD,
-                               host = "192.168.1.8",
+                               host = HOST,
                                database = "levels")
 
 @bot.event
@@ -80,7 +79,7 @@ async def on_ready():
     emojis = ['💻', '🤖', '🚀', '🛫', '🇪🇸', '🇲🇽', '➗']
     for emoji in emojis:
         await message.add_reaction(emoji)
-        
+
 
 @bot.event
 async def on_message(message):
