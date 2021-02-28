@@ -15,14 +15,25 @@ import discord
 from dotenv import load_dotenv
 from discord.ext import commands
 
+# database
+import mysql.connector
+
 with open('levels.json', 'r') as f:
     levels = json.load(f)  # takes the json file and makes it a "levels" dictionary
 
 load_dotenv()
 TOKEN = os.environ["TOKEN"]  # taking environment variables from .env
+PASSWORD = os.environ["PASSWORD"]
 
 intents = discord.Intents().all()
 bot = commands.Bot(command_prefix=".", intents=intents)  # creates bot instance
+
+lvls = mysql.connector.connect(user = "albert",
+                               password = PASSWORD,
+                               host = "192.168.1.8",
+                               database = "levels")
+
+cursor = lvls.cursor()
 
 
 @bot.event
@@ -139,12 +150,12 @@ async def on_message(message):
 
     if message.channel not in bannedchannels and message.content[0] != "." and message.content[0] != "?" and \
             message.content[0] != "!":  # check if it's not a spam channel or a bot command
-        if str(
-                message.author.id) not in levels:  # if a new user joins and says something, create a new dictionary
-            # in the json file
-            levels[str(message.author.id)] = {"xp": 1, "level": 1}
-            print('new user')  # debugging
-
+        if str(message.author.id) not in levels:  # if a new user joins and says something, create a new dictionary in the json file
+#            levels[str(message.author.id)] = {"xp": 1, "level": 1}
+            print('i like men')
+            cursor.execute(f"INSERT INTO levels.levels VALUES ({str(message.author.id)}, '1', '1')")
+            lvls.commit()
+            print(cursor.rowcount, "new user")
         else:
             if 100 * (levels[str(message.author.id)]["level"] - 1) + 50 <= levels[str(message.author.id)]["xp"] + 1:
                 # check if it passed the level; level cap is calculated as 100 * (level - 1) + 50
