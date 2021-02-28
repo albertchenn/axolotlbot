@@ -60,6 +60,13 @@ def editXP(id, amount):
     
     lvls.commit()
 
+def editLevel(id, amount):
+    levelAdd = getLevel(id) + amount
+
+    cursor.execute(f"UPDATE levels SET level = '{levelAdd}' WHERE id = '{id}' ")
+
+    lvls.commit()
+
 @bot.event
 async def on_ready():
     print('{} is on'.format(
@@ -181,32 +188,28 @@ async def on_message(message):
 
         else:
             if 100 * (getLevel(id) - 1) + 50 <= getXP(id)+ 1: # check if it passed the level; level cap is calculated as 100 * (level - 1) + 50
-                levels[id]["level"] += 1  # increase level by one
-                levels[id]["xp"] = 0  # reset xp
-                levelUP = str(user.name) + " leveled up to " + str(levels[id]["level"]) + "!"  # create level up message
-                levelupembed = discord.Embed(title=levelUP, color=0xFFC0CB)  # create embed with level up message
-                await message.channel.send(
-                    embed=levelupembed)  # send embed; YOU HAVE TO SEND THE EMBED FOR IT TO REGISTER
+                editLevel(id, 1)
+                editXP(id, -getXP(id))
 
-                if levels[id]["level"] >= 10 and vip not in user.roles:
+                levelUP = str(user.name) + " leveled up to " + str(getLevel(id)) + "!"  # create level up message
+                levelupembed = discord.Embed(title=levelUP, color=0xFFC0CB)  # create embed with level up message
+                await message.channel.send(embed=levelupembed)  # send embed
+
+                if getLevel(id) >= 10 and vip not in user.roles:
                     viprank = str("congrats, you earned the VIP role!")
                     vipembed = discord.Embed(title=viprank, color=0xff85a2)  # vip embed once they reach level 25
                     await message.channel.send(embed=vipembed)
                     await user.add_roles(vip)
-                elif levels[id]["level"] >= 20 and mvp not in user.roles:
+
+                if getLevel(id) >= 20 and mvp not in user.roles:
                     mvprank = str("congrats, you earned the MVP role!")
                     mvpembed = discord.Embed(title=mvprank, color=0xff85a2)
                     await message.channel.send(embed=mvpembed)
                     await user.add_roles(mvp)
+
             else:  # any message sent
                 added_xp = random.randint(1, 5)  # xp randomized from 1-5, may change later
-                levels[id]["xp"] += added_xp  # increase the xp by the randomized xp
-                editXP(id, added_xp)
-
-        with open('levels.json', 'w') as a:
-            a.write(json.dumps(levels, indent=4,
-                               sort_keys=True))  # save the dictionary of dictionaries of levels and xp to "levels.json"
-        a.close()
+                editXP(id, added_xp) # increase the xp by the randomized xp
 
     await bot.process_commands(message)
 
@@ -372,17 +375,13 @@ async def _setlevel(ctx, *args):
     else:
         for user in ctx.guild.members:
             if args[0] == user.name:
-                levels[str(user.id)] = {"xp": 1, "level": int(args[1])}
+                editLevel(str(user.id), int(args[1]) - getLevel(str(user.id)))
+
                 await ctx.send(f"set **{user.name}**'s level to {args[1]}")
                 foundUser = True
                 break
     if not foundUser:
         await ctx.send("could not find that user")
-
-    with open('levels.json', 'w') as b:
-        b.write(json.dumps(levels, indent=4,
-                           sort_keys=True))  # save the dictionary of levels and xp to "levels.json"
-    b.close()
 
 
 @bot.command(aliases=["lb", "leaderboard"])
@@ -393,7 +392,6 @@ async def _leaderboard(ctx):
     for user in levels:
         person = bot.get_user(int(user))
         if not person.bot:
-            # leaderboard.append(f"{person.name}: level {levels[user]['level']} at {levels[user]['xp']} xp")
             rawxp = (100 * (levels[user]['level'] - 2) + 100) * (levels[user]["level"] - 1) / 2 + levels[user]["xp"]
             rawxpleaderboard.append(rawxp)
             rawxpdictionary[rawxp] = person
