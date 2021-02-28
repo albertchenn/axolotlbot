@@ -2,6 +2,7 @@
 # local imports
 from admin import Admin
 from cogs import Games
+from sql import SQL
 
 # builtin imports
 import asyncio
@@ -28,44 +29,12 @@ PASSWORD = os.environ["PASSWORD"]
 intents = discord.Intents().all()
 bot = commands.Bot(command_prefix=".", intents=intents)  # creates bot instance
 
+sql = SQL()
+
 lvls = mysql.connector.connect(user = "albert",
                                password = PASSWORD,
                                host = "192.168.1.8",
                                database = "levels")
-
-cursor = lvls.cursor()
-
-def checkExist(item):
-    cursor.execute(f"SELECT * FROM levels")
-    db = cursor.fetchall()
-    for user in db:
-        if user[0] == item:
-            return True
-    return False
-
-def getXP(id):
-    cursor.execute(f"SELECT * FROM levels WHERE id = '{id}'")
-    row = cursor.fetchall()
-    return int(row[0][2])
-
-def getLevel(id):
-    cursor.execute(f"SELECT * FROM levels WHERE id = '{id}'")
-    row = cursor.fetchall()
-    return int(row[0][1])
-
-def editXP(id, amount):
-    xpAdd = getXP(id) + amount
-
-    cursor.execute(f"UPDATE levels SET xp = '{xpAdd}' WHERE id = '{id}' ")
-    
-    lvls.commit()
-
-def editLevel(id, amount):
-    levelAdd = getLevel(id) + amount
-
-    cursor.execute(f"UPDATE levels SET level = '{levelAdd}' WHERE id = '{id}' ")
-
-    lvls.commit()
 
 @bot.event
 async def on_ready():
@@ -111,7 +80,7 @@ async def on_ready():
     emojis = ['💻', '🤖', '🚀', '🛫', '🇪🇸', '🇲🇽', '➗']
     for emoji in emojis:
         await message.add_reaction(emoji)
-
+        
 
 @bot.event
 async def on_message(message):
@@ -182,26 +151,26 @@ async def on_message(message):
         return
 
     if message.channel not in bannedchannels and message.content[0] != "." and message.content[0] != "?" and message.content[0] != "!":  # check if it's not a spam channel or a bot command
-        if not checkExist(id):  # if a new user joins and says something, create a new dictionary in the json file
-            cursor.execute(f"INSERT INTO levels VALUES ({id}, '1', '1')")
+        if not sql.checkExist(id):  # if a new user joins and says something, create a new dictionary in the json file
+            sql.cursor.execute(f"INSERT INTO levels VALUES ({id}, '1', '1')")
             lvls.commit()
 
         else:
-            if 100 * (getLevel(id) - 1) + 50 <= getXP(id)+ 1: # check if it passed the level; level cap is calculated as 100 * (level - 1) + 50
-                editLevel(id, 1)
-                editXP(id, -getXP(id))
+            if 100 * (sql.getLevel(id) - 1) + 50 <= sql.getXP(id)+ 1: # check if it passed the level; level cap is calculated as 100 * (level - 1) + 50
+                sql.editLevel(id, 1)
+                sql.editXP(id, -sql.getXP(id))
 
-                levelUP = str(user.name) + " leveled up to " + str(getLevel(id)) + "!"  # create level up message
+                levelUP = str(user.name) + " leveled up to " + str(sql.getLevel(id)) + "!"  # create level up message
                 levelupembed = discord.Embed(title=levelUP, color=0xFFC0CB)  # create embed with level up message
                 await message.channel.send(embed=levelupembed)  # send embed
 
-                if getLevel(id) >= 10 and vip not in user.roles:
+                if sql.getLevel(id) >= 10 and vip not in user.roles:
                     viprank = str("congrats, you earned the VIP role!")
                     vipembed = discord.Embed(title=viprank, color=0xff85a2)  # vip embed once they reach level 25
                     await message.channel.send(embed=vipembed)
                     await user.add_roles(vip)
 
-                if getLevel(id) >= 20 and mvp not in user.roles:
+                if sql.getLevel(id) >= 20 and mvp not in user.roles:
                     mvprank = str("congrats, you earned the MVP role!")
                     mvpembed = discord.Embed(title=mvprank, color=0xff85a2)
                     await message.channel.send(embed=mvpembed)
@@ -209,7 +178,7 @@ async def on_message(message):
 
             else:  # any message sent
                 added_xp = random.randint(1, 5)  # xp randomized from 1-5, may change later
-                editXP(id, added_xp) # increase the xp by the randomized xp
+                sql.editXP(id, added_xp) # increase the xp by the randomized xp
 
     await bot.process_commands(message)
 
@@ -258,9 +227,9 @@ async def _level(ctx, user: discord.Member):
     spam = bot.get_channel(768876717422936115)
     id = str(user.id)
     if ctx.channel == spam:
-        if checkExist(id):
-            level = "level: " + str(getLevel(id)) + "\n"  # accesses the level of the person who sent it from the json file.
-            msgs = "xp: " + str(getXP(id)) + "/" + str(100 * (getLevel(id) - 1) + 50)  # accesses the xp needed from the json file, (current xp/needed xp)
+        if sql.checkExist(id):
+            level = "level: " + str(sql.getLevel(id)) + "\n"  # accesses the level of the person who sent it from the json file.
+            msgs = "xp: " + str(sql.getXP(id)) + "/" + str(100 * (sql.getLevel(id) - 1) + 50)  # accesses the xp needed from the json file, (current xp/needed xp)
 
             levelinfoembed = discord.Embed(title=level + msgs, color=0xff85a2,timestamp=datetime.utcnow())  # creates embed of levels (and sets a timestamp)
             levelinfoembed.set_footer(text='Retrieved Data')
@@ -375,7 +344,7 @@ async def _setlevel(ctx, *args):
     else:
         for user in ctx.guild.members:
             if args[0] == user.name:
-                editLevel(str(user.id), int(args[1]) - getLevel(str(user.id)))
+                sql.editLevel(str(user.id), int(args[1]) - sql.getLevel(str(user.id)))
 
                 await ctx.send(f"set **{user.name}**'s level to {args[1]}")
                 foundUser = True
@@ -389,20 +358,22 @@ async def _leaderboard(ctx):
     rawxpleaderboard = []
     rawxpdictionary = {}
     leaderboard = []
-    for user in levels:
+
+    for user in sql.getIDs():
         person = bot.get_user(int(user))
+
         if not person.bot:
-            rawxp = (100 * (levels[user]['level'] - 2) + 100) * (levels[user]["level"] - 1) / 2 + levels[user]["xp"]
+            rawxp = (100 * (sql.getLevel(user) - 2) + 100) * (sql.getLevel(user) - 1) / 2 + sql.getXP(user)
             rawxpleaderboard.append(rawxp)
             rawxpdictionary[rawxp] = person
 
     rawxpleaderboard.sort(reverse=True)
 
     for i in range(20):
-        User = rawxpdictionary[rawxpleaderboard[i]]
-        userLevel = levels[str(User.id)]["level"]
-        userXP = levels[str(User.id)]["xp"]
-        leaderboard.append(f"{i + 1}. {User.name}'s raw xp: **{int(rawxpleaderboard[i])}** | level: **{userLevel}** | xp: **{userXP}**")
+        usr = rawxpdictionary[rawxpleaderboard[i]]
+        userLevel = sql.getLevel(usr.id)
+        userXP = sql.getXP(usr.id)
+        leaderboard.append(f"{i + 1}. {usr.name}'s raw xp: **{int(rawxpleaderboard[i])}** | level: **{userLevel}** | xp: **{userXP}**")
 
     lbString = ""
     for place in leaderboard:
