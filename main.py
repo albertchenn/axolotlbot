@@ -2,11 +2,11 @@
 # local imports
 from admin import Admin
 from cogs import Games
+from sql import SQL
 
 # builtin imports
 import asyncio
 import os
-import json
 import random
 from datetime import datetime
 
@@ -15,15 +15,25 @@ import discord
 from dotenv import load_dotenv
 from discord.ext import commands
 
-with open('levels.json', 'r') as f:
-    levels = json.load(f)  # takes the json file and makes it a "levels" dictionary
+# database
+import mysql.connector
 
 load_dotenv()
 TOKEN = os.environ["TOKEN"]  # taking environment variables from .env
+PASSWORD = os.environ["PASSWORD"]
+USER = os.environ["USR"]
+HOST = os.environ["HOST"]
 
 intents = discord.Intents().all()
 bot = commands.Bot(command_prefix=".", intents=intents)  # creates bot instance
 
+sql = SQL()
+
+
+lvls = mysql.connector.connect(user = USER,
+                               password = PASSWORD,
+                               host = HOST,
+                               database = "levels")
 
 @bot.event
 async def on_ready():
@@ -92,23 +102,25 @@ async def on_message(message):
     bannedchannels = [mutedchat, spam, music, gulag, joinrole, timeout]  # makes lists of blacklisted channels
     images = ['.jpg', '.png', '.jpeg', '.gif']
 
-    if message.author.bot:
+    user = message.author
+    id = str(user.id)
+
+    if user.bot:
         return
 
     if "axolotl bot is bad" in message.content.lower():  # triggers on the message "axolotl bot is bad"
-        # await message.author.create_dm()      #starts a "channel" which is actually just a dm
-        await message.author.send(
+        # await user.create_dm()      #starts a "channel" which is actually just a dm
+        await user.send(
             "buff axolotl is coming for you, so prepare yourself mortal.\nYou shall not stand the wrath of BUFF AXOLOTL"
         )
-        await message.author.send(file=discord.File('buffaxolotl.png'))  # threatening dm
+        await user.send(file=discord.File('buffaxolotl.png'))  # threatening dm
 
     if "school sucks" in message.content.lower():  # triggers on the message "school sucks"
-        authorid = str(message.author.id)  # finds the person's id
-        authorping = '<@' + authorid + '>'  # creates a ping message
+        authorping = '<@' + id + '>'  # creates a ping message
 
         msgs = []  # creates empty list to log the pings
         for _ in range(5):  # iterate 5 times
-            sent_message = await message.author.send(authorping)  # ping the person in dm channel
+            sent_message = await user.send(authorping)  # ping the person in dm channel
             msgs.append(sent_message)  # log the message
 
         for message in msgs:  # iterate through all the sent messages
@@ -117,12 +129,12 @@ async def on_message(message):
     if message.channel == relay and message.content[0] != "@":
         await main.send(message.content)
     if message.channel == main:
-        relaymessage = message.author.name + ": " + message.content
+        relaymessage = user.name + ": " + message.content
         relaymessageembed = discord.Embed(title=relaymessage)
         await relay.send(embed=relaymessageembed)
-    if no_media in message.author.roles:
+    if no_media in user.roles:
         deleteEmbed = discord.Embed(color=0xff85a2, timestamp=datetime.utcnow())
-        deleteEmbed.title = f"i deleted media sent by {message.author.name} in {message.channel}"
+        deleteEmbed.title = f"i deleted media sent by {user.name} in {message.channel}"
         if "https://" in message.content:
             await message.delete()
             await adminlogs.send(embed=deleteEmbed)
@@ -137,42 +149,35 @@ async def on_message(message):
     if len(message.content) == 0:
         return
 
-    if message.channel not in bannedchannels and message.content[0] != "." and message.content[0] != "?" and \
-            message.content[0] != "!":  # check if it's not a spam channel or a bot command
-        if str(
-                message.author.id) not in levels:  # if a new user joins and says something, create a new dictionary
-            # in the json file
-            levels[str(message.author.id)] = {"xp": 1, "level": 1}
-            print('new user')  # debugging
+    if message.channel not in bannedchannels and message.content[0] != "." and message.content[0] != "?" and message.content[0] != "!":  # check if it's not a spam channel or a bot command
+        if not sql.checkExist(id):  # if a new user joins and says something, create a new dictionary in the json file
+            sql.cursor.execute(f"INSERT INTO levels VALUES ({id}, '1', '1')")
+            lvls.commit()
 
         else:
-            if 100 * (levels[str(message.author.id)]["level"] - 1) + 50 <= levels[str(message.author.id)]["xp"] + 1:
-                # check if it passed the level; level cap is calculated as 100 * (level - 1) + 50
-                levels[str(message.author.id)]["level"] += 1  # increase level by one
-                levels[str(message.author.id)]["xp"] = 0  # reset xp
-                levelUP = str(message.author.name) + " leveled up to " + str(
-                    levels[str(message.author.id)]["level"]) + "!"  # create level up message
-                levelupembed = discord.Embed(title=levelUP, color=0xFFC0CB)  # create embed with level up message
-                await message.channel.send(
-                    embed=levelupembed)  # send embed; YOU HAVE TO SEND THE EMBED FOR IT TO REGISTER
+            if 100 * (sql.getLevel(id) - 1) + 50 <= sql.getXP(id)+ 1: # check if it passed the level; level cap is calculated as 100 * (level - 1) + 50
+                sql.editLevel(id, 1)
+                sql.editXP(id, -sql.getXP(id))
 
-                if levels[str(message.author.id)]["level"] >= 10 and vip not in message.author.roles:
+                levelUP = str(user.name) + " leveled up to " + str(sql.getLevel(id)) + "!"  # create level up message
+                levelupembed = discord.Embed(title=levelUP, color=0xFFC0CB)  # create embed with level up message
+                await message.channel.send(embed=levelupembed)  # send embed
+
+                if sql.getLevel(id) >= 10 and vip not in user.roles:
                     viprank = str("congrats, you earned the VIP role!")
                     vipembed = discord.Embed(title=viprank, color=0xff85a2)  # vip embed once they reach level 25
                     await message.channel.send(embed=vipembed)
-                    await message.author.add_roles(vip)
-                elif levels[str(message.author.id)]["level"] >= 20 and mvp not in message.author.roles:
+                    await user.add_roles(vip)
+
+                if sql.getLevel(id) >= 20 and mvp not in user.roles:
                     mvprank = str("congrats, you earned the MVP role!")
                     mvpembed = discord.Embed(title=mvprank, color=0xff85a2)
                     await message.channel.send(embed=mvpembed)
-                    await message.author.add_roles(mvp)
+                    await user.add_roles(mvp)
+
             else:  # any message sent
                 added_xp = random.randint(1, 5)  # xp randomized from 1-5, may change later
-                levels[str(message.author.id)]["xp"] += added_xp  # increase the xp by the randomized xp
-        with open('levels.json', 'w') as a:
-            a.write(json.dumps(levels, indent=4,
-                               sort_keys=True))  # save the dictionary of dictionaries of levels and xp to "levels.json"
-        a.close()
+                sql.editXP(id, added_xp) # increase the xp by the randomized xp
 
     await bot.process_commands(message)
 
@@ -219,24 +224,18 @@ async def on_reaction_add(reaction, user):
 @bot.command(aliases=['lvl', 'level'], help="Displays someones level in axolotl clan")
 async def _level(ctx, user: discord.Member):
     spam = bot.get_channel(768876717422936115)
+    id = str(user.id)
     if ctx.channel == spam:
-        if str(user.id) in levels:
-            level = "level: " + str(levels[str(user.id)][
-                                        "level"]) + "\n"  # accesses the level of the person who sent it from the
-            # json file.
-            msgs = "xp: " + str(levels[str(user.id)]["xp"]) + "/" + str(100 * (levels[str(user.id)][
-                                                                                   "level"] - 1) + 50)  # accesses
-            # the xp needed from the json file, (current xp/needed xp)
+        if sql.checkExist(id):
+            level = "level: " + str(sql.getLevel(id)) + "\n"  # accesses the level of the person who sent it from the json file.
+            msgs = "xp: " + str(sql.getXP(id)) + "/" + str(100 * (sql.getLevel(id) - 1) + 50)  # accesses the xp needed from the json file, (current xp/needed xp)
 
-            levelinfoembed = discord.Embed(title=level + msgs, color=0xff85a2,
-                                           timestamp=datetime.utcnow())  # creates embed of levels (and sets a
-            # timestamp)
+            levelinfoembed = discord.Embed(title=level + msgs, color=0xff85a2,timestamp=datetime.utcnow())  # creates embed of levels (and sets a timestamp)
             levelinfoembed.set_footer(text='Retrieved Data')
 
             await ctx.send(embed=levelinfoembed)
         else:
-            levelinfoembed = discord.Embed(title="I couldn't find that user, try mentioning them instead",
-                                           color=0xff85a2, timestamp=datetime.utcnow())
+            levelinfoembed = discord.Embed(title="I couldn't find that user, try mentioning them instead", color=0xff85a2, timestamp=datetime.utcnow())
             await ctx.send(embed=levelinfoembed)
 
 
@@ -304,6 +303,7 @@ async def _stop(ctx):
 async def _invites(ctx):
     axolotlclan = bot.get_guild(591065297692262410)
     message = ctx.message
+    user = message.author
 
     totalInvites = 0
     for i in await ctx.guild.invites():
@@ -318,7 +318,7 @@ async def _invites(ctx):
         vipembed = discord.Embed(title=viprank, color=0xff85a2)  # vip embed once they reach level 25
         await message.channel.send(embed=vipembed)
 
-        await message.author.add_roles(vip)
+        await user.add_roles(vip)
 
     await ctx.send(embed=invitesEmbed)
 
@@ -343,17 +343,13 @@ async def _setlevel(ctx, *args):
     else:
         for user in ctx.guild.members:
             if args[0] == user.name:
-                levels[str(user.id)] = {"xp": 1, "level": int(args[1])}
+                sql.editLevel(str(user.id), int(args[1]) - sql.getLevel(str(user.id)))
+
                 await ctx.send(f"set **{user.name}**'s level to {args[1]}")
                 foundUser = True
                 break
     if not foundUser:
         await ctx.send("could not find that user")
-
-    with open('levels.json', 'w') as b:
-        b.write(json.dumps(levels, indent=4,
-                           sort_keys=True))  # save the dictionary of levels and xp to "levels.json"
-    b.close()
 
 
 @bot.command(aliases=["lb", "leaderboard"])
@@ -361,21 +357,22 @@ async def _leaderboard(ctx):
     rawxpleaderboard = []
     rawxpdictionary = {}
     leaderboard = []
-    for user in levels:
+
+    for user in sql.getIDs():
         person = bot.get_user(int(user))
+
         if not person.bot:
-            # leaderboard.append(f"{person.name}: level {levels[user]['level']} at {levels[user]['xp']} xp")
-            rawxp = (100 * (levels[user]['level'] - 2) + 100) * (levels[user]["level"] - 1) / 2 + levels[user]["xp"]
+            rawxp = (100 * (sql.getLevel(user) - 2) + 100) * (sql.getLevel(user) - 1) / 2 + sql.getXP(user)
             rawxpleaderboard.append(rawxp)
             rawxpdictionary[rawxp] = person
 
     rawxpleaderboard.sort(reverse=True)
 
     for i in range(20):
-        User = rawxpdictionary[rawxpleaderboard[i]]
-        userLevel = levels[str(User.id)]["level"]
-        userXP = levels[str(User.id)]["xp"]
-        leaderboard.append(f"{i + 1}. {User.name}'s raw xp: **{int(rawxpleaderboard[i])}** | level: **{userLevel}** | xp: **{userXP}**")
+        usr = rawxpdictionary[rawxpleaderboard[i]]
+        userLevel = sql.getLevel(usr.id)
+        userXP = sql.getXP(usr.id)
+        leaderboard.append(f"{i + 1}. {usr.name}'s raw xp: **{int(rawxpleaderboard[i])}** | level: **{userLevel}** | xp: **{userXP}**")
 
     lbString = ""
     for place in leaderboard:
