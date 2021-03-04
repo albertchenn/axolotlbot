@@ -3,6 +3,7 @@
 from admin import Admin
 from cogs import Games
 from sql import SQL
+from song import Song
 
 # builtin imports
 import asyncio
@@ -35,6 +36,8 @@ lvls = mysql.connector.connect(user = USER,
                                password = PASSWORD,
                                host = HOST,
                                database = DATABASE)
+
+np = {}
 
 @bot.event
 async def on_ready():
@@ -240,66 +243,6 @@ async def _level(ctx, user: discord.Member):
             await ctx.send(embed=levelinfoembed)
 
 
-@bot.command(aliases=['play', 'p'], help="plays an mp3 song, do .playsong for more info")
-@commands.has_role('VIP')
-async def _play(ctx, *args):
-    user = ctx.author
-    vc = user.voice.channel
-    songs = ["pog", "pogU", "Wait", "what", "manhunt", "bestsong", "men", "pathetique", "arabesque"]
-    if vc is None:
-        await ctx.send("please join a vc before using this command")
-
-    elif len(args) == 0:
-        await ctx.send('the songs that are currently available are: ' + str(songs))
-        return
-
-    elif args[0] in songs:
-        if vc is not None:
-            voice_channel = await vc.connect()
-            channel = vc.name
-            await ctx.send(user.name + " is in " + channel)
-            await ctx.send("do '.stop' to stop the song, (you have to make it leave for it to play another song)")
-
-            if len(args) == 1:
-                voice_channel.play(discord.FFmpegPCMAudio("songs/" + args[0] + ".mp3"))
-                while voice_channel.is_playing():
-                    await asyncio.sleep(1)
-
-            elif args[1] == "loop":
-                await ctx.send("you have chosen the 'loop' switch, it will play endlessly unless you stop it.")
-                while True:
-                    voice_channel.play(discord.FFmpegPCMAudio("songs/" + args[0] + ".mp3"))
-                    while voice_channel.is_playing():
-                        await asyncio.sleep(1)
-            voice_channel.stop()
-        else:
-            await ctx.send('User is not in a channel')
-
-    elif args[0] == "all":
-        voice_channel = await vc.connect()
-        channel = vc.name
-        await ctx.send("user is in " + channel)
-        await ctx.send("do '.stop' to stop the song, (you have to make it leave for it to play another song)")
-        for song in songs:
-            voice_channel.play(discord.FFmpegPCMAudio("songs/" + song + ".mp3"))
-            while voice_channel.is_playing():
-                await asyncio.sleep(1)
-    else:
-        await ctx.send("could not find that song")
-
-
-@bot.command(name='stop', help='leaves the vc')
-async def _stop(ctx):
-    user = ctx.author
-    vc = user.voice.channel
-
-    if vc is not None:
-        await ctx.voice_client.disconnect()
-        await ctx.send("axolotl has left the vc")
-    else:
-        await ctx.send('User is not in a channel')
-
-
 @bot.command(name='invites', help='checks how many invites you have, if you have three or higher you get vip')
 async def _invites(ctx):
     axolotlclan = bot.get_guild(591065297692262410)
@@ -387,5 +330,6 @@ async def _leaderboard(ctx):
 
 bot.add_cog(Games(bot))
 bot.add_cog(Admin(bot))
+bot.add_cog(Song(bot))
 
 bot.run(TOKEN)  # runs the program
