@@ -9,13 +9,14 @@ TOKEN = os.environ["TOKEN"]  # taking environment variables from .env
 PASSWORD = os.environ["PASSWORD"]
 USER = os.environ["USR"]
 HOST = os.environ["HOST"]
+DATABASE = os.environ["DATABASE"]
 
 class SQL():
     def __init__(self):
         self.lvls = mysql.connector.connect(user = USER,
-                                       password = PASSWORD,
-                                       host = HOST,
-                                       database = "levels")
+                                            password = PASSWORD,
+                                            host = HOST,
+                                            database = DATABASE)
 
         self.cursor = self.lvls.cursor()
     
