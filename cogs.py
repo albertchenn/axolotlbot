@@ -1,7 +1,6 @@
 # cogs.py
 # python imports   
 import random
-from datetime import datetime
 import time
 
 # discord imports
