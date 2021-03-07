@@ -38,7 +38,7 @@ lvls = mysql.connector.connect(user = USER,
                                database = DATABASE)
 
 np = {}
-lightpink = 0xff85a2
+LIGHTPINK = 0xff85a2
 @bot.event
 async def on_ready():
     print('{} is on'.format(
@@ -137,7 +137,7 @@ async def on_message(message):
         relaymessageembed = discord.Embed(title=relaymessage)
         await relay.send(embed=relaymessageembed)
     if no_media in user.roles:
-        deleteEmbed = discord.Embed(color=lightpink, timestamp=datetime.utcnow())
+        deleteEmbed = discord.Embed(color=LIGHTPINK, timestamp=datetime.utcnow())
         deleteEmbed.title = f"i deleted media sent by {user.name} in {message.channel}"
         if "https://" in message.content:
             await message.delete()
@@ -164,18 +164,18 @@ async def on_message(message):
                 sql.editXP(id, -sql.getXP(id))
 
                 levelUP = str(user.name) + " leveled up to " + str(sql.getLevel(id)) + "!"  # create level up message
-                levelupembed = discord.Embed(title=levelUP, color=lightpink)  # create embed with level up message
+                levelupembed = discord.Embed(title=levelUP, color=LIGHTPINK)  # create embed with level up message
                 await message.channel.send(embed=levelupembed)  # send embed
 
                 if sql.getLevel(id) >= 10 and vip not in user.roles:
                     viprank = str("congrats, you earned the VIP role!")
-                    vipembed = discord.Embed(title=viprank, color=lightpink)  # vip embed once they reach level 25
+                    vipembed = discord.Embed(title=viprank, color=LIGHTPINK)  # vip embed once they reach level 25
                     await message.channel.send(embed=vipembed)
                     await user.add_roles(vip)
 
                 if sql.getLevel(id) >= 20 and mvp not in user.roles:
                     mvprank = str("congrats, you earned the MVP role!")
-                    mvpembed = discord.Embed(title=mvprank, color=lightpink)
+                    mvpembed = discord.Embed(title=mvprank, color=LIGHTPINK)
                     await message.channel.send(embed=mvpembed)
                     await user.add_roles(mvp)
 
@@ -234,12 +234,12 @@ async def _level(ctx, user: discord.Member):
             level = "level: " + str(sql.getLevel(id)) + "\n"  # accesses the level of the person who sent it from the json file.
             msgs = "xp: " + str(sql.getXP(id)) + "/" + str(100 * (sql.getLevel(id) - 1) + 50)  # accesses the xp needed from the json file, (current xp/needed xp)
 
-            levelinfoembed = discord.Embed(title=level + msgs, color=lightpink,timestamp=datetime.utcnow())  # creates embed of levels (and sets a timestamp)
+            levelinfoembed = discord.Embed(title=level + msgs, color=LIGHTPINK,timestamp=datetime.utcnow())  # creates embed of levels (and sets a timestamp)
             levelinfoembed.set_footer(text='Retrieved Data')
 
             await ctx.send(embed=levelinfoembed)
         else:
-            levelinfoembed = discord.Embed(title="I couldn't find that user, try mentioning them instead", color=lightpink, timestamp=datetime.utcnow())
+            levelinfoembed = discord.Embed(title="I couldn't find that user, try mentioning them instead", color=LIGHTPINK, timestamp=datetime.utcnow())
             await ctx.send(embed=levelinfoembed)
 
 
@@ -254,12 +254,12 @@ async def _invites(ctx):
         if i.inviter == ctx.author:
             totalInvites += i.uses
     invitesmessage = f"You've invited {totalInvites} member(s) to the server!"
-    invitesEmbed = discord.Embed(title=invitesmessage, color=lightpink, timestamp=datetime.utcnow())
+    invitesEmbed = discord.Embed(title=invitesmessage, color=LIGHTPINK, timestamp=datetime.utcnow())
 
     vip = discord.utils.get(axolotlclan.roles, name="VIP")  # accesses the role vip, and adds it to the user
     if totalInvites >= 3 and vip not in ctx.author.roles:
         viprank = str("congrats, you earned the VIP role!")
-        vipembed = discord.Embed(title=viprank, color=lightpink)  # vip embed once they reach level 25
+        vipembed = discord.Embed(title=viprank, color=LIGHTPINK)  # vip embed once they reach level 25
         await message.channel.send(embed=vipembed)
 
         await user.add_roles(vip)
@@ -322,7 +322,7 @@ async def _leaderboard(ctx):
     for place in leaderboard:
         lbString += place + "\n"
 
-    lbEmbed = discord.Embed(title="Top 20 for Axolotl Clan:", color=lightpink, timestamp=datetime.utcnow())
+    lbEmbed = discord.Embed(title="Top 20 for Axolotl Clan:", color=LIGHTPINK, timestamp=datetime.utcnow())
     lbEmbed.description = lbString
     lbEmbed.set_footer(text="Axolotl Clan")
     await ctx.send(embed=lbEmbed)

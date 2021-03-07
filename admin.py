@@ -3,7 +3,7 @@
 import discord
 from discord.ext import commands
 from datetime import datetime
-darkpink = 0xe75480
+DARKPINK = 0xe75480
 class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -15,7 +15,7 @@ class Admin(commands.Cog):
         logs = self.bot.get_channel(800417369548914708)
         alreadyMuted = None
 
-        mutedEmbed = discord.Embed(color=darkpink, timestamp=datetime.utcnow()) 
+        mutedEmbed = discord.Embed(color=DARKPINK, timestamp=datetime.utcnow()) 
         if muted in user.roles:
             mutedEmbed.title = "the user is already muted"
             alreadyMuted = True
@@ -32,7 +32,7 @@ class Admin(commands.Cog):
     async def unmute(self, ctx, user: discord.Member):
         muted = discord.utils.get(ctx.guild.roles, name = 'Muted')
 
-        unmuteEmbed = discord.Embed(color = darkpink, timestamp=datetime.utcnow())
+        unmuteEmbed = discord.Embed(color = DARKPINK, timestamp=datetime.utcnow())
         if muted not in user.roles:
             unmuteEmbed.title = "the user is already unmuted"
         else:
@@ -46,7 +46,7 @@ class Admin(commands.Cog):
     async def timeout(self, ctx, user: discord.Member):
         member = discord.utils.get(ctx.guild.roles, name = 'Member')
 
-        timeoutEmbed = discord.Embed(color = darkpink, timestamp = datetime.utcnow())
+        timeoutEmbed = discord.Embed(color = DARKPINK, timestamp = datetime.utcnow())
         if member not in user.roles:
             timeoutEmbed.title = "the user is already in timeout"
         else:
@@ -60,7 +60,7 @@ class Admin(commands.Cog):
     async def timein(self, ctx, user: discord.Member):
         member = discord.utils.get(ctx.guild.roles, name = 'Member')
 
-        timeinEmbed = discord.Embed(color = darkpink, timestamp = datetime.utcnow())
+        timeinEmbed = discord.Embed(color = DARKPINK, timestamp = datetime.utcnow())
         if member in user.roles:
             timeinEmbed.title = "the user is already out of timeout"
         else:
@@ -74,7 +74,7 @@ class Admin(commands.Cog):
     async def mediamute(self, ctx, user: discord.Member):
         mediamute = discord.utils.get(ctx.guild.roles, name = 'no media')
 
-        mediamuteEmbed = discord.Embed(color = darkpink, timestamp = datetime.utcnow())
+        mediamuteEmbed = discord.Embed(color = DARKPINK, timestamp = datetime.utcnow())
         if mediamute in user.roles:
             mediamuteEmbed.title = "that user is already muted from media"
         else:
@@ -88,7 +88,7 @@ class Admin(commands.Cog):
     async def mediaunmute(self, ctx, user: discord.Member):
         unmediamute = discord.utils.get(ctx.guild.roles, name = 'no media')
 
-        unmediamuteEmbed = discord.Embed(color = darkpink, timestamp = datetime.utcnow())
+        unmediamuteEmbed = discord.Embed(color = DARKPINK, timestamp = datetime.utcnow())
         if unmediamute not in user.roles:
             unmediamuteEmbed.title = "that user is already unmuted from media"
         else:
