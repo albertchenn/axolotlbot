@@ -3,7 +3,9 @@
 import discord
 from discord.ext import commands
 from datetime import datetime
+
 DARKPINK = 0xe75480
+
 class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
