@@ -241,15 +241,6 @@ async def _level(ctx, user: discord.Member):
         else:
             levelinfoembed = discord.Embed(title="I couldn't find that user, try mentioning them instead", color=LIGHTPINK, timestamp=datetime.utcnow())
             await ctx.send(embed=levelinfoembed)
-
-@bot.command(name = balls, help = "Gives Arav 10000 xp cuz he creams to dream")
-async def balls(ctx):
-    spam = bot.get_channel(768876717422936115)
-    if ctx.channel == spam:
-        ball = discord.Embed(title = "Gave Arav 10000 xp", color = LIGHTPINK, timestamp = datetime.utcnow())
-        await ctx.send(embed = ball)
-    else:
-        await ctx.message.send("Go to spam smh my head")
         
 @bot.command(name='invites', help='checks how many invites you have, if you have three or higher you get vip')
 async def _invites(ctx):
