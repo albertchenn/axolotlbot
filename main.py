@@ -36,9 +36,9 @@ lvls = mysql.connector.connect(user = USER,
                                password = PASSWORD,
                                host = HOST,
                                database = DATABASE)
-
-np = {}
+                               
 LIGHTPINK = 0xff85a2
+
 @bot.event
 async def on_ready():
     print('{} is on'.format(
