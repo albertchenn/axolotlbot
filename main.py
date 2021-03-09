@@ -36,7 +36,7 @@ lvls = mysql.connector.connect(user = USER,
                                password = PASSWORD,
                                host = HOST,
                                database = DATABASE)
-                               
+
 LIGHTPINK = 0xff85a2
 
 @bot.event
@@ -325,6 +325,21 @@ async def _leaderboard(ctx):
     lbEmbed.description = lbString
     lbEmbed.set_footer(text="Axolotl Clan")
     await ctx.send(embed=lbEmbed)
+
+@bot.command(name = "balls", help = "Gives Arav 10000 xp")
+@commands.cooldown(1, 10, commands.BucketType.user)
+async def balls(ctx):
+    spam = bot.get_channel(768876717422936115)
+    if ctx.channel == spam:
+        ball = discord.Embed(title = "Gave Arav 10000 xp", color = LIGHTPINK, timestamp = datetime.utcnow())
+        await ctx.send(embed = ball)
+    else:
+        await ctx.send("Go to spam smh my head")
+
+@balls.error
+async def balls_error(ctx,error):
+    if isinstance(error, commands.CommandOnCooldown):
+        await ctx.send(error)
 
 
 bot.add_cog(Games(bot))
