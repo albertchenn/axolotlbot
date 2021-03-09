@@ -10,14 +10,12 @@ PASSWORD = os.environ["PASSWORD"]
 USER = os.environ["USR"]
 HOST = os.environ["HOST"]
 DATABASE = os.environ["DATABASE"]
-PORT = os.environ["PORT"]
 
 class SQL():
     def __init__(self):
         self.lvls = mysql.connector.connect(user = USER,
                                             password = PASSWORD,
                                             host = HOST,
-                                            port = PORT,
                                             database = DATABASE)
 
         self.cursor = self.lvls.cursor()

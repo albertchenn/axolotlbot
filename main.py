@@ -25,7 +25,6 @@ PASSWORD = os.environ["PASSWORD"]
 USER = os.environ["USR"]
 HOST = os.environ["HOST"]
 DATABASE = os.environ["DATABASE"]
-PORT = os.environ["PORT"]
 
 intents = discord.Intents().all()
 bot = commands.Bot(command_prefix=".", intents=intents)  # creates bot instance
@@ -36,7 +35,6 @@ sql = SQL()
 lvls = mysql.connector.connect(user = USER,
                                password = PASSWORD,
                                host = HOST,
-                               port = PORT,
                                database = DATABASE)
 
 LIGHTPINK = 0xff85a2
@@ -244,15 +242,21 @@ async def _level(ctx, user: discord.Member):
             levelinfoembed = discord.Embed(title="I couldn't find that user, try mentioning them instead", color=LIGHTPINK, timestamp=datetime.utcnow())
             await ctx.send(embed=levelinfoembed)
 
-@bot.command(name = balls, help = "Gives Arav 10000 xp cuz he creams to dream")
+@bot.command(name = "balls", help = "Gives Arav 10000 xp")
+@commands.cooldown(1, 10, commands.BucketType.user)
 async def balls(ctx):
     spam = bot.get_channel(768876717422936115)
     if ctx.channel == spam:
         ball = discord.Embed(title = "Gave Arav 10000 xp", color = LIGHTPINK, timestamp = datetime.utcnow())
         await ctx.send(embed = ball)
     else:
-        await ctx.message.send("Go to spam smh my head")
+        await ctx.send("Go to spam smh my head")
 
+@balls.error
+async def balls_error(ctx,error):
+    if isinstance(error, commands.CommandOnCooldown):
+        await ctx.send(error)
+        
 @bot.command(name='invites', help='checks how many invites you have, if you have three or higher you get vip')
 async def _invites(ctx):
     axolotlclan = bot.get_guild(591065297692262410)
@@ -336,6 +340,7 @@ async def _leaderboard(ctx):
     lbEmbed.description = lbString
     lbEmbed.set_footer(text="Axolotl Clan")
     await ctx.send(embed=lbEmbed)
+
 
 
 bot.add_cog(Games(bot))
