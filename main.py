@@ -26,6 +26,7 @@ USER = os.environ["USR"]
 HOST = os.environ["HOST"]
 DATABASE = os.environ["DATABASE"]
 
+print(PASSWORD, USER, HOST, DATABASE)
 intents = discord.Intents().all()
 bot = commands.Bot(command_prefix=".", intents=intents)  # creates bot instance
 
