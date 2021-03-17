@@ -12,14 +12,10 @@ HOST = os.environ["HOST"]
 DATABASE = os.environ["DATABASE"]
 
 class SQL():
-    def __init__(self):
-        self.lvls = mysql.connector.connect(user = USER,
-                                            password = PASSWORD,
-                                            host = HOST,
-                                            database = DATABASE)
-
-        self.cursor = self.lvls.cursor()
-    
+    def __init__(self, cursor, database):
+        self.cursor = cursor
+        self.lvls = database
+        
     def checkExist(self, item):
         self.cursor.execute(f"SELECT * FROM levels")
         db = self.cursor.fetchall()

@@ -29,13 +29,13 @@ DATABASE = os.environ["DATABASE"]
 intents = discord.Intents().all()
 bot = commands.Bot(command_prefix=".", intents=intents)  # creates bot instance
 
-sql = SQL()
-
-
 lvls = mysql.connector.connect(user = USER,
                                password = PASSWORD,
                                host = HOST,
                                database = DATABASE)
+
+cursor = lvls.cursor()
+sql = SQL(cursor, lvls)
 
 LIGHTPINK = 0xff85a2
 
