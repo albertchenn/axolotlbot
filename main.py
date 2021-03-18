@@ -29,13 +29,13 @@ DATABASE = os.environ["DATABASE"]
 intents = discord.Intents().all()
 bot = commands.Bot(command_prefix=".", intents=intents)  # creates bot instance
 
-sql = SQL()
-
-
 lvls = mysql.connector.connect(user = USER,
                                password = PASSWORD,
                                host = HOST,
                                database = DATABASE)
+
+cursor = lvls.cursor()
+sql = SQL(cursor, lvls)
 
 LIGHTPINK = 0xff85a2
 
@@ -134,8 +134,7 @@ async def on_message(message):
         await main.send(message.content)
     if message.channel == main:
         relaymessage = user.name + ": " + message.content
-        relaymessageembed = discord.Embed(title=relaymessage)
-        await relay.send(embed=relaymessageembed)
+        await relay.send(relaymessage)
     if no_media in user.roles:
         deleteEmbed = discord.Embed(color=LIGHTPINK, timestamp=datetime.utcnow())
         deleteEmbed.title = f"i deleted media sent by {user.name} in {message.channel}"

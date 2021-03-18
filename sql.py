@@ -12,14 +12,10 @@ HOST = os.environ["HOST"]
 DATABASE = os.environ["DATABASE"]
 
 class SQL():
-    def __init__(self):
-        self.lvls = mysql.connector.connect(user = USER,
-                                            password = PASSWORD,
-                                            host = HOST,
-                                            database = DATABASE)
-
-        self.cursor = self.lvls.cursor()
-    
+    def __init__(self, cursor, database):
+        self.cursor = cursor
+        self.lvls = database
+        
     def checkExist(self, item):
         self.cursor.execute(f"SELECT * FROM levels")
         db = self.cursor.fetchall()
@@ -29,16 +25,19 @@ class SQL():
         return False 
 
     def getXP(self, id):
+        id = int(id)
         self.cursor.execute(f"SELECT * FROM levels WHERE id = '{id}'")
         row = self.cursor.fetchall()
         return int(row[0][2])
 
     def getLevel(self, id):
+        id = int(id)
         self.cursor.execute(f"SELECT * FROM levels WHERE id = '{id}'")
         row = self.cursor.fetchall()
         return int(row[0][1])
 
     def editXP(self, id, amount):
+        id = int(id)
         xpAdd = self.getXP(id) + amount
 
         self.cursor.execute(f"UPDATE levels SET xp = '{xpAdd}' WHERE id = '{id}' ")
@@ -46,6 +45,7 @@ class SQL():
         self.lvls.commit()
 
     def editLevel(self, id, amount):
+        id = int(id)
         levelAdd = self.getLevel(id) + amount
 
         self.cursor.execute(f"UPDATE levels SET level = '{levelAdd}' WHERE id = '{id}' ")
