@@ -17,13 +17,13 @@ class SQL():
         self.lvls = database
         
     def checkExist(self, item):
-        self.cursor.execute(f"SELECT * FROM levels")
-        db = self.cursor.fetchall()
-        for user in db:
-            if user[0] == item:
-                return True
-        return False 
-
+            self.cursor.execute(f"SELECT * FROM levels")
+            db = self.cursor.fetchall()
+            for user in db:
+                if user[0] == item:
+                    return True
+            return False
+        
     def getXP(self, id):
         id = int(id)
         self.cursor.execute(f"SELECT * FROM levels WHERE id = '{id}'")

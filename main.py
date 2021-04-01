@@ -278,7 +278,7 @@ async def _invites(ctx):
 
 
 @bot.command(name='ping', help="pings someone 5 times")
-@commands.has_role('Admin', 'Moderator')
+@commands.has_role('Admin')
 async def _ping(ctx, user: discord.Member):
     for _ in range(5):
         await ctx.send(user.mention)
