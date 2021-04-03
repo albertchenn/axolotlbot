@@ -25,6 +25,7 @@ PASSWORD = os.environ["PASSWORD"]
 USER = os.environ["USR"]
 HOST = os.environ["HOST"]
 DATABASE = os.environ["DATABASE"]
+PORT = os.environ["PORT"]
 
 intents = discord.Intents().all()
 bot = commands.Bot(command_prefix=".", intents=intents)  # creates bot instance
@@ -32,7 +33,8 @@ bot = commands.Bot(command_prefix=".", intents=intents)  # creates bot instance
 lvls = mysql.connector.connect(user = USER,
                                password = PASSWORD,
                                host = HOST,
-                               database = DATABASE)
+                               database = DATABASE,
+                               port = PORT)
 
 cursor = lvls.cursor()
 sql = SQL(cursor, lvls)

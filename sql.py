@@ -1,16 +1,5 @@
 # sql.py
 # program that holds all the sql commands for axo bot
-import mysql.connector
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-TOKEN = os.environ["TOKEN"]  # taking environment variables from .env
-PASSWORD = os.environ["PASSWORD"]
-USER = os.environ["USR"]
-HOST = os.environ["HOST"]
-DATABASE = os.environ["DATABASE"]
-
 class SQL():
     def __init__(self, cursor, database):
         self.cursor = cursor
