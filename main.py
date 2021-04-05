@@ -46,46 +46,6 @@ async def on_ready():
     print('{} is on'.format(
         bot.user.name))  # gives notification when bot is online and sets game message to "Playing with Axolotls"
     await bot.change_presence(activity=discord.Game(name='with Axolotls'))
-    roles = bot.get_channel(797867864593006592)
-
-    reactionmessage = """:triangular_ruler: - precalc\n
-                         :book: - ela (thompson)\n
-                         :tools: - ied\n
-                         :straight_ruler: - algebra 2\n
-                         :earth_americas: - world history\n
-                         :blue_square: - salem\n
-                         :black_large_square: - plymouth\n
-                         :red_square: - canton\n
-                         :loudspeaker: - announcements\n
-                         :man_scientist: - biology\n
-                         :flag_fr: - french\n
-                         :united_nations: - ap world\n
-                         :closed_book: - ela (wright)\n"""
-
-    reactionembed = discord.Embed(title="react to the following emojis for ur roles", description=reactionmessage)
-
-    message = await roles.send(embed=reactionembed)
-
-    emojis = ['📐', '📖', '🛠️', '📏', '🌎', '🟦', '⬛', '🟥', '📢', '👨‍🔬', '🇫🇷', '🇺🇳', '📕']
-    for emoji in emojis:
-        await message.add_reaction(emoji)
-
-    reactionmessage = """:computer: - cse\n
-                        :robot: - robotics\n
-                        :rocket: - physics (gell)\n
-                        :airplane_departure: - physics (hiske)\n
-                        :flag_es: - spanish 2\n
-                        :flag_mx: - spanish 3\n
-                        :heavy_division_sign: - math olympiad\n"""
-
-    reactionembed = discord.Embed(description=reactionmessage)
-
-    message = await roles.send(embed=reactionembed)
-
-    emojis = ['💻', '🤖', '🚀', '🛫', '🇪🇸', '🇲🇽', '➗']
-    for emoji in emojis:
-        await message.add_reaction(emoji)
-
 
 @bot.event
 async def on_message(message):
@@ -196,35 +156,7 @@ async def on_member_join(member):  # triggers on member join
         f"<#758025770181460015>\nUse the school roles channel to get your class or game roles!")  # welcome and
     # informational message
     await main.send(f"{member.name} is here!")
-
-
-@bot.event
-async def on_reaction_add(reaction, user):
-    roles = bot.get_channel(797867864593006592)
-    axolotl = bot.get_user(791048344956043274)
-    axolotlclan = bot.get_guild(591065297692262410)
-
-    emojiRoles = {'📐': 'Precalc', '📖': 'ELA (Thompson)', '🛠️': 'IED', '📏': 'Algebra 2', '🌎': 'World History',
-                  '🟦': 'Salem', '⬛': 'Plymouth', '🟥': 'Canton', '📢': 'Announcements', '👨‍🔬': 'Biology',
-                  '🇫🇷': 'French',
-                  '🇺🇳': 'AP World', '📕': 'ELA (Wright)', '💻': 'CSE', '🤖': 'Robotics',
-                  '🚀': 'Physics (Gell)', '🛫': 'Physics (Hiske)', '🇪🇸': 'Spanish 2', '🇲🇽': 'Spanish 3',
-                  '➗': 'Math Olympiad'}
-
-    if reaction.message.channel != roles:
-        return
-    elif user == axolotl:
-        return
-    else:
-        role = discord.utils.get(axolotlclan.roles, name=emojiRoles[str(reaction)])
-        if role in user.roles:
-            await user.remove_roles(role)
-            await user.send('you were removed from the ' + role.name + ' role in axolotl clan')
-        else:
-            await user.add_roles(role)
-            await user.send('you got the ' + role.name + ' role in axolotl clan')
-        await reaction.remove(user)
-
+    
 
 @bot.command(aliases=['lvl', 'level'], help="Displays someones level in axolotl clan")
 async def _level(ctx, user: discord.Member = None):
