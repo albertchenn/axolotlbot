@@ -1,5 +1,0 @@
-discord.py
-requests
-python-dotenv
-PyNaCl
-mysql-connector-python

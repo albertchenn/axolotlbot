@@ -50,11 +50,8 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     main = bot.get_channel(763475634278105088)
-    mutedchat = bot.get_channel(766656875256741898)
     spam = bot.get_channel(768876717422936115)
     music = bot.get_channel(757970344496726025)  # channel declarations
-    gulag = bot.get_channel(788434232401461248)
-    joinrole = bot.get_channel(765560283116208158)
     relay = bot.get_channel(798991401102475384)
     adminlogs = bot.get_channel(800417369548914708)
     timeout = bot.get_channel(785898040254922784)
@@ -65,7 +62,7 @@ async def on_message(message):
     mvp = discord.utils.get(axolotlclan.roles, name="MVP")
     no_media = discord.utils.get(axolotlclan.roles, name="no media")
 
-    bannedchannels = [mutedchat, spam, music, gulag, joinrole, timeout]  # makes lists of blacklisted channels
+    bannedchannels = [spam, music, timeout]  # makes lists of blacklisted channels
     images = ['.jpg', '.png', '.jpeg', '.gif']
 
     user = message.author
@@ -92,9 +89,9 @@ async def on_message(message):
         for message in msgs:  # iterate through all the sent messages
             await message.delete()  # delete them
 
-    if message.channel == relay and message.content[0] != "@":
+    if message.channel == relay and "@" not in message.content:
         await main.send(message.content)
-    if message.channel == main:
+    if message.channel == main and "@" not in message.content:
         relaymessage = user.name + ": " + message.content
         await relay.send(relaymessage)
     if no_media in user.roles:
