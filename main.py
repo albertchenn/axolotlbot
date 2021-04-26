@@ -43,8 +43,7 @@ LIGHTPINK = 0xff85a2
 
 @bot.event
 async def on_ready():
-    print('{} is on'.format(
-        bot.user.name))  # gives notification when bot is online and sets game message to "Playing with Axolotls"
+    print('{} is on'.format(bot.user.name))  # gives notification when bot is online and sets game message to "Playing with Axolotls"
     await bot.change_presence(activity=discord.Game(name='with Axolotls'))
 
 @bot.event
@@ -58,17 +57,17 @@ async def on_message(message):
     
     axolotlclan = bot.get_guild(591065297692262410)  # guild declarations
 
-    vip = discord.utils.get(axolotlclan.roles, name="VIP")  # accesses the role vip, and adds it to the user
-    mvp = discord.utils.get(axolotlclan.roles, name="MVP")
-    no_media = discord.utils.get(axolotlclan.roles, name="no media")
-
+    vip = discord.utils.get(axolotlclan.roles, id=796851771510095882)  # accesses the role vip, and adds it to the user
+    mvp = discord.utils.get(axolotlclan.roles, id=804063860104495134)
+    no_media = discord.utils.get(axolotlclan.roles, id=804007659229544449)
+    
     bannedchannels = [spam, music, timeout]  # makes lists of blacklisted channels
     images = ['.jpg', '.png', '.jpeg', '.gif']
     bannedstarts = ['!', '.', '?']
     user = message.author
     id = str(user.id)
 
-    if user.bot or (not message.channel == discord.channel.DMChannel):
+    if user.bot or (message.channel == discord.channel.DMChannel):
         return
 
     if "axolotl bot is bad" in message.content.lower():  # triggers on the message "axolotl bot is bad"
@@ -176,13 +175,14 @@ async def _level(ctx, user: discord.Member = None):
             await ctx.send(embed=levelinfoembed)
 
 @bot.command(name = "balls", help = "Gives Arav 10000 xp cuz he creams to dream")
+@commands.cooldown(1, 10, commands.BucketType.guild)
 async def balls(ctx):
     spam = bot.get_channel(768876717422936115)
     if ctx.channel == spam:
         ball = discord.Embed(title = "Gave Arav 10000 xp", color = LIGHTPINK, timestamp = datetime.utcnow())
         await ctx.send(embed = ball)
     else:
-        await ctx.message.send("Go to spam smh my head")
+        await ctx.send("Go to spam smh my head")
         
 @bot.command(name='invites', help='checks how many invites you have, if you have three or higher you get vip')
 async def _invites(ctx):
@@ -197,7 +197,7 @@ async def _invites(ctx):
     invitesmessage = f"You've invited {totalInvites} member(s) to the server!"
     invitesEmbed = discord.Embed(title=invitesmessage, color=LIGHTPINK, timestamp=datetime.utcnow())
 
-    vip = discord.utils.get(axolotlclan.roles, name="VIP")  # accesses the role vip, and adds it to the user
+    vip = discord.utils.get(axolotlclan.roles, id=796851771510095882)  # accesses the role vip, and adds it to the user
     if totalInvites >= 3 and vip not in ctx.author.roles:
         viprank = str("congrats, you earned the VIP role!")
         vipembed = discord.Embed(title=viprank, color=LIGHTPINK)  # vip embed once they reach level 25
@@ -245,7 +245,6 @@ async def _leaderboard(ctx):
 
     for user in sql.getIDs():
         person = bot.get_user(int(user))
-
         if not person.bot:
             rawxp = (100 * (sql.getLevel(user) - 2) + 100) * (sql.getLevel(user) - 1) / 2 + sql.getXP(user)
             rawxpleaderboard.append(rawxp)
