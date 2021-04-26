@@ -239,7 +239,6 @@ async def _setlevel(ctx, *args):
 
 @bot.command(aliases=["lb", "leaderboard"])
 async def _leaderboard(ctx):
-    rawxpleaderboard = []
     rawxpdictionary = {}
     leaderboard = []
 
@@ -247,17 +246,18 @@ async def _leaderboard(ctx):
         person = bot.get_user(int(user))
         if not person.bot:
             rawxp = (100 * (sql.getLevel(user) - 2) + 100) * (sql.getLevel(user) - 1) / 2 + sql.getXP(user)
-            rawxpleaderboard.append(rawxp)
-            rawxpdictionary[rawxp] = person
+            rawxpdictionary[person] = rawxp
+            rawxpdictionary = dict(sorted(rawxpdictionary.items(), key=lambda item: item[1], reverse=True))
 
-    rawxpleaderboard.sort(reverse=True)
-
-    for i in range(20):
-        usr = rawxpdictionary[rawxpleaderboard[i]]
+    place = 1
+    for usr in rawxpdictionary:
         userLevel = sql.getLevel(usr.id)
         userXP = sql.getXP(usr.id)
-        leaderboard.append(f"{i + 1}. {usr.name}'s raw xp: **{int(rawxpleaderboard[i])}** | level: **{userLevel}** | xp: **{userXP}**")
-
+        leaderboard.append(f"{place}. {usr.name}'s raw xp: **{int(rawxpdictionary[usr])}** | level: **{userLevel}** | xp: **{userXP}**")
+        place += 1
+        if place == 21:
+            break
+        
     lbString = ""
     for place in leaderboard:
         lbString += place + "\n"
