@@ -11,9 +11,9 @@ class Admin(commands.Cog):
         self.bot = bot
     
     @commands.command(name='mute', help="mutes them")
-    @commands.has_any_role('Admin', 'Moderator', 'Trial Moderator')
+    @commands.has_any_role(769171897564004362, 757966937769902262, 765183925886124032)
     async def mute(self, ctx, user: discord.Member):
-        muted = discord.utils.get(ctx.guild.roles, name = 'Muted')
+        muted = ctx.guild.get_role(764878992737828876)
         logs = self.bot.get_channel(800417369548914708)
         alreadyMuted = None
 
@@ -30,9 +30,9 @@ class Admin(commands.Cog):
             await logs.send(f"{ctx.author.name} muted {user.name}")
 
     @commands.command(name='unmute', help="unmutes them")
-    @commands.has_any_role('Admin', 'Moderator', "Trial Moderator")
+    @commands.has_any_role(769171897564004362, 757966937769902262, 765183925886124032)
     async def unmute(self, ctx, user: discord.Member):
-        muted = discord.utils.get(ctx.guild.roles, name = 'Muted')
+        muted = ctx.guild.get_role(764878992737828876)
 
         unmuteEmbed = discord.Embed(color = DARKPINK, timestamp=datetime.utcnow())
         if muted not in user.roles:
@@ -43,39 +43,11 @@ class Admin(commands.Cog):
 
         await ctx.send(embed = unmuteEmbed)
 
-    @commands.command(name='timeout', help="put them in timeout(reduce the amount of channels they see")
-    @commands.has_any_role('Admin', 'Moderator', 'Trial Moderator')
-    async def timeout(self, ctx, user: discord.Member):
-        member = discord.utils.get(ctx.guild.roles, name = 'Member')
-
-        timeoutEmbed = discord.Embed(color = DARKPINK, timestamp = datetime.utcnow())
-        if member not in user.roles:
-            timeoutEmbed.title = "the user is already in timeout"
-        else:
-            await user.remove_roles(member)
-            timeoutEmbed.title = f"{user.name} was sent to timeout"
-
-        await ctx.send(embed=timeoutEmbed)
-    
-    @commands.command(name='timein', help="un timeouts them")
-    @commands.has_any_role('Admin', 'Moderator', 'Trial Moderator')
-    async def timein(self, ctx, user: discord.Member):
-        member = discord.utils.get(ctx.guild.roles, name = 'Member')
-
-        timeinEmbed = discord.Embed(color = DARKPINK, timestamp = datetime.utcnow())
-        if member in user.roles:
-            timeinEmbed.title = "the user is already out of timeout"
-        else:
-            await user.add_roles(member)
-            timeinEmbed.title = f"{user.name} was sent out of timeout"
-
-        await ctx.send(embed=timeinEmbed)
-
     @commands.command(name='mediamute', help="mutes them from media")
-    @commands.has_any_role('Admin', 'Moderator', 'Trial Moderator')
+    @commands.has_any_role(769171897564004362, 757966937769902262, 765183925886124032)
     async def mediamute(self, ctx, user: discord.Member):
-        mediamute = discord.utils.get(ctx.guild.roles, name = 'no media')
-
+        mediamute = ctx.guild.get_role(804007659229544449)
+        
         mediamuteEmbed = discord.Embed(color = DARKPINK, timestamp = datetime.utcnow())
         if mediamute in user.roles:
             mediamuteEmbed.title = "that user is already muted from media"
@@ -86,9 +58,9 @@ class Admin(commands.Cog):
         await ctx.send(embed=mediamuteEmbed)
 
     @commands.command(name='mediaunmute', help="unmutes them from media")
-    @commands.has_any_role('Admin', 'Moderator', 'Trial Moderator')
+    @commands.has_any_role(769171897564004362, 757966937769902262, 765183925886124032)
     async def mediaunmute(self, ctx, user: discord.Member):
-        unmediamute = discord.utils.get(ctx.guild.roles, name = 'no media')
+        unmediamute = ctx.guild.get_role(804007659229544449)
 
         unmediamuteEmbed = discord.Embed(color = DARKPINK, timestamp = datetime.utcnow())
         if unmediamute not in user.roles:

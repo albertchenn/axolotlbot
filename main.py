@@ -64,11 +64,11 @@ async def on_message(message):
 
     bannedchannels = [spam, music, timeout]  # makes lists of blacklisted channels
     images = ['.jpg', '.png', '.jpeg', '.gif']
-
+    bannedstarts = ['!', '.', '?']
     user = message.author
     id = str(user.id)
 
-    if user.bot:
+    if user.bot or (not message.channel == discord.channel.DMChannel):
         return
 
     if "axolotl bot is bad" in message.content.lower():  # triggers on the message "axolotl bot is bad"
@@ -111,7 +111,7 @@ async def on_message(message):
     if len(message.content) == 0:
         return
 
-    if message.channel not in bannedchannels and message.content[0] != "." and message.content[0] != "?" and message.content[0] != "!":  # check if it's not a spam channel or a bot command
+    if (message.channel not in bannedchannels) and (message.content[0] not in bannedstarts) and (message.guild.id == axolotlclan.id):  # check if it's not a spam channel or a bot command
         if not sql.checkExist(id):  # if a new user joins and says something, create a new dictionary in the json file
             sql.cursor.execute(f"INSERT INTO levels VALUES ({id}, '1', '1')")
             lvls.commit()

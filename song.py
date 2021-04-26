@@ -1,11 +1,15 @@
 # python imports
 import asyncio
 from datetime import datetime
+import os
 
 # discord imports
 import discord
 from discord import embeds
 from discord.ext import commands
+
+# youtubedl
+import youtube_dl
 
 class Song(commands.Cog):
     def __init__(self, bot):
@@ -17,7 +21,7 @@ class Song(commands.Cog):
     async def _play(self, ctx, *args):
         user = ctx.author
         
-        songs = ["pog", "pogU", "Wait", "what", "manhunt", "bestsong", "men", "pathetique", "arabesque"]
+        songs = ["pog", "pogU", "Wait", "what", "manhunt", "bestsong", "men", "pathetique", "arabesque", "youtube"]
         if user.voice is None:
             await ctx.send("please join a vc before using this command")
             return
@@ -27,7 +31,7 @@ class Song(commands.Cog):
         if len(args) == 0:
             await ctx.send('the songs that are currently available are: ' + str(songs))
             return
-
+            
         elif args[0] in songs:
             self.np["song"] = args[0]
             
