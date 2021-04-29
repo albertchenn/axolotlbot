@@ -1,7 +1,7 @@
 # bot.py
 # local imports
 from admin import Admin
-from cogs import Games
+from game import Games
 from sql import SQL
 from song import Song
 
