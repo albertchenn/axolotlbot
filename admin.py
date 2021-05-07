@@ -7,8 +7,9 @@ from datetime import datetime
 DARKPINK = 0xe75480
 
 class Admin(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot, sql):
         self.bot = bot
+        self.sql = sql
     
     @commands.command(name='mute', help="mutes them")
     @commands.has_any_role(769171897564004362, 757966937769902262, 765183925886124032)
@@ -71,3 +72,29 @@ class Admin(commands.Cog):
         
         await ctx.send(embed=unmediamuteEmbed)
     
+    @commands.command(name="setlevel", help="sets someone level to specific number")
+    @commands.has_role('Admin')
+    async def _setlevel(self, ctx, *args):
+        foundUser = False
+        if len(args) != 2:
+            await ctx.send("invalid format, please do .setlevel (user) (level)")
+            return
+        elif int(args[1]) < 0:
+            await ctx.send("you can't have a negative level")
+            return
+        else:
+            for user in ctx.guild.members:
+                if args[0] == user.name:
+                    self.sql.editLevel(str(user.id), int(args[1]) - self.sql.getLevel(str(user.id)))
+
+                    await ctx.send(f"set **{user.name}**'s level to {args[1]}")
+                    foundUser = True
+                    break
+        if not foundUser:
+            await ctx.send("could not find that user")
+
+    @commands.command(name='ping', help="pings someone 5 times")
+    @commands.has_role('Admin')
+    async def _ping(self, ctx, user: discord.Member):
+        for _ in range(5):
+            await ctx.send(user.mention)

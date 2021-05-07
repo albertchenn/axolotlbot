@@ -4,6 +4,7 @@ from admin import Admin
 from game import Games
 from sql import SQL
 from song import Song
+from levels import Levels
 
 # builtin imports
 import asyncio
@@ -154,126 +155,9 @@ async def on_member_join(member):  # triggers on member join
     await main.send(f"{member.name} is here!")
     
 
-@bot.command(aliases=['lvl', 'level'], help="Displays someones level in axolotl clan")
-async def _level(ctx, user: discord.Member = None):
-    spam = bot.get_channel(768876717422936115)
-    if user == None:
-        id = str(ctx.message.author.id)
-    else:
-        id = str(user.id)
-    if ctx.channel == spam:
-        if sql.checkExist(id):
-            level = "level: " + str(sql.getLevel(id)) + "\n"  # accesses the level of the person who sent it from the json file.
-            msgs = "xp: " + str(sql.getXP(id)) + "/" + str(100 * (sql.getLevel(id) - 1) + 50)  # accesses the xp needed from the json file, (current xp/needed xp)
-
-            levelinfoembed = discord.Embed(title=level + msgs, color=LIGHTPINK,timestamp=datetime.utcnow())  # creates embed of levels (and sets a timestamp)
-            levelinfoembed.set_footer(text='Retrieved Data')
-
-            await ctx.send(embed=levelinfoembed)
-        else:
-            levelinfoembed = discord.Embed(title="I couldn't find that user, try mentioning them instead", color=LIGHTPINK, timestamp=datetime.utcnow())
-            await ctx.send(embed=levelinfoembed)
-
-@bot.command(name = "balls", help = "Gives Arav 10000 xp cuz he creams to dream")
-@commands.cooldown(1, 10, commands.BucketType.guild)
-async def balls(ctx):
-    spam = bot.get_channel(768876717422936115)
-    if ctx.channel == spam:
-        ball = discord.Embed(title = "Gave Arav 10000 xp", color = LIGHTPINK, timestamp = datetime.utcnow())
-        await ctx.send(embed = ball)
-    else:
-        await ctx.send("Go to spam smh my head")
-        
-@bot.command(name='invites', help='checks how many invites you have, if you have three or higher you get vip')
-async def _invites(ctx):
-    axolotlclan = bot.get_guild(591065297692262410)
-    message = ctx.message
-    user = message.author
-
-    totalInvites = 0
-    for i in await ctx.guild.invites():
-        if i.inviter == ctx.author:
-            totalInvites += i.uses
-    invitesmessage = f"You've invited {totalInvites} member(s) to the server!"
-    invitesEmbed = discord.Embed(title=invitesmessage, color=LIGHTPINK, timestamp=datetime.utcnow())
-
-    vip = discord.utils.get(axolotlclan.roles, id=796851771510095882)  # accesses the role vip, and adds it to the user
-    if totalInvites >= 3 and vip not in ctx.author.roles:
-        viprank = str("congrats, you earned the VIP role!")
-        vipembed = discord.Embed(title=viprank, color=LIGHTPINK)  # vip embed once they reach level 25
-        await message.channel.send(embed=vipembed)
-
-        await user.add_roles(vip)
-
-    await ctx.send(embed=invitesEmbed)
-
-
-@bot.command(name='ping', help="pings someone 5 times")
-@commands.has_role('Admin')
-async def _ping(ctx, user: discord.Member):
-    for _ in range(5):
-        await ctx.send(user.mention)
-
-
-@bot.command(name="setlevel", help="sets someone level to specific number")
-@commands.has_role('Admin')
-async def _setlevel(ctx, *args):
-    foundUser = False
-    if len(args) != 2:
-        await ctx.send("invalid format, please do .setlevel (user) (level)")
-        return
-    elif int(args[1]) < 0:
-        await ctx.send("you can't have a negative level")
-        return
-    else:
-        for user in ctx.guild.members:
-            if args[0] == user.name:
-                sql.editLevel(str(user.id), int(args[1]) - sql.getLevel(str(user.id)))
-
-                await ctx.send(f"set **{user.name}**'s level to {args[1]}")
-                foundUser = True
-                break
-    if not foundUser:
-        await ctx.send("could not find that user")
-
-
-@bot.command(aliases=["lb", "leaderboard"])
-async def _leaderboard(ctx):
-    rawxpdictionary = {}
-    leaderboard = []
-
-    for user in sql.getIDs():
-        person = bot.get_user(int(user))
-        if not person.bot:
-            rawxp = (100 * (sql.getLevel(user) - 2) + 100) * (sql.getLevel(user) - 1) / 2 + sql.getXP(user)
-            rawxpdictionary[person] = rawxp
-            rawxpdictionary = dict(sorted(rawxpdictionary.items(), key=lambda item: item[1], reverse=True))
-
-    place = 1
-    for usr in rawxpdictionary:
-        userLevel = sql.getLevel(usr.id)
-        userXP = sql.getXP(usr.id)
-        leaderboard.append(f"{place}. {usr.name}'s raw xp: **{int(rawxpdictionary[usr])}** | level: **{userLevel}** | xp: **{userXP}**")
-        place += 1
-        if place == 21:
-            break
-        
-    lbString = ""
-    for place in leaderboard:
-        lbString += place + "\n"
-
-    lbEmbed = discord.Embed(title="Top 20 for Axolotl Clan:", color=LIGHTPINK, timestamp=datetime.utcnow())
-    lbEmbed.description = lbString
-    lbEmbed.set_footer(text="Axolotl Clan")
-    await ctx.send(embed=lbEmbed)
-
-@balls.error
-async def balls_error(ctx,error):
-    if isinstance(error, commands.CommandOnCooldown):
-        await ctx.send(error)
-
 bot.add_cog(Games(bot))
-bot.add_cog(Admin(bot))
 bot.add_cog(Song(bot))
+bot.add_cog(Admin(bot, sql))
+bot.add_cog(Levels(bot, sql))
 
 bot.run(TOKEN)  # runs the program
