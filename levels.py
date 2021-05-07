@@ -62,14 +62,14 @@ class Levels(commands.Cog):
             userXP = self.sql.getXP(usr.id)
             leaderboard.append(f"{place}. {usr.name}'s raw xp: **{int(rawxpdictionary[usr])}** | level: **{userLevel}** | xp: **{userXP}**")
             place += 1
-            if place == 21:
+            if place == 11:
                 break
             
         lbString = ""
         for place in leaderboard:
             lbString += place + "\n"
 
-        lbEmbed = discord.Embed(title="Top 20 for Axolotl Clan:", color=LIGHTPINK, timestamp=datetime.utcnow())
+        lbEmbed = discord.Embed(title="Top 10 for Axolotl Clan:", color=LIGHTPINK, timestamp=datetime.utcnow())
         lbEmbed.description = lbString
         lbEmbed.set_footer(text="Axolotl Clan")
         await ctx.send(embed=lbEmbed)
