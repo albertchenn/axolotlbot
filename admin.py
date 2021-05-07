@@ -74,24 +74,22 @@ class Admin(commands.Cog):
     
     @commands.command(name="setlevel", help="sets someone level to specific number")
     @commands.has_role('Admin')
-    async def _setlevel(self, ctx, *args):
-        foundUser = False
-        if len(args) != 2:
-            await ctx.send("invalid format, please do .setlevel (user) (level)")
-            return
-        elif int(args[1]) < 0:
+    async def setlevel(self, ctx, user: discord.Member, level: int):
+        if level < 0:
             await ctx.send("you can't have a negative level")
             return
+        
         else:
-            for user in ctx.guild.members:
-                if args[0] == user.name:
-                    self.sql.editLevel(str(user.id), int(args[1]) - self.sql.getLevel(str(user.id)))
+            self.sql.editLevel(str(user.id), level - self.sql.getLevel(str(user.id)))
+            await ctx.send(f"set **{user.name}**'s level to {level}")
 
-                    await ctx.send(f"set **{user.name}**'s level to {args[1]}")
-                    foundUser = True
-                    break
-        if not foundUser:
-            await ctx.send("could not find that user")
+    @setlevel.error
+    async def balls_error(self, ctx, error):
+        if isinstance(error, commands.MemberNotFound):
+            await ctx.send(error)
+        elif isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send("format is .setlevel (user) (level)")
+
 
     @commands.command(name='ping', help="pings someone 5 times")
     @commands.has_role('Admin')
