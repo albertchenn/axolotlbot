@@ -1,5 +1,6 @@
 # bot.py
 # local imports
+from discord.channel import VoiceChannel
 from admin import Admin
 from game import Games
 from sql import SQL
@@ -42,6 +43,7 @@ sql = SQL(cursor, lvls)
 
 LIGHTPINK = 0xff85a2
 
+
 @bot.event
 async def on_ready():
     print('{} is on'.format(bot.user.name))  # gives notification when bot is online and sets game message to "Playing with Axolotls"
@@ -50,21 +52,24 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     main = bot.get_channel(763475634278105088)
+    media = bot.get_channel(765571073043333171)
     spam = bot.get_channel(768876717422936115)
     music = bot.get_channel(757970344496726025)  # channel declarations
     relay = bot.get_channel(798991401102475384)
     adminlogs = bot.get_channel(800417369548914708)
     timeout = bot.get_channel(785898040254922784)
+
+    bannedchannels = [spam, music, timeout]  # makes lists of blacklisted channels
+    images = ['.jpg', '.png', '.jpeg', '.gif']
+    bannedstarts = ['!', '.', '?']
+    pingchannels = [main, media, spam]
     
     axolotlclan = bot.get_guild(591065297692262410)  # guild declarations
 
     vip = discord.utils.get(axolotlclan.roles, id=796851771510095882)  # accesses the role vip, and adds it to the user
     mvp = discord.utils.get(axolotlclan.roles, id=804063860104495134)
-    no_media = discord.utils.get(axolotlclan.roles, id=804007659229544449)
+    no_media = discord.utils.get(axolotlclan.roles, id=804007659229544449)    
     
-    bannedchannels = [spam, music, timeout]  # makes lists of blacklisted channels
-    images = ['.jpg', '.png', '.jpeg', '.gif']
-    bannedstarts = ['!', '.', '?']
     user = message.author
     id = str(user.id)
 
@@ -79,11 +84,10 @@ async def on_message(message):
         await user.send(file=discord.File('buffaxolotl.png'))  # threatening dm
 
     if "school sucks" in message.content.lower():  # triggers on the message "school sucks"
-        authorping = '<@' + id + '>'  # creates a ping message
-
         msgs = []  # creates empty list to log the pings
         for _ in range(5):  # iterate 5 times
-            sent_message = await user.send(authorping)  # ping the person in dm channel
+            channel = random.choice(pingchannels)
+            sent_message = await channel.send(user.mention)  # ping the person in dm channel
             msgs.append(sent_message)  # log the message
 
         for message in msgs:  # iterate through all the sent messages
