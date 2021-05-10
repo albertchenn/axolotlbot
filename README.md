@@ -1,12 +1,16 @@
 # axolotlbot
 It's a bot made for the people of Axolotl Clan.
 
-##### The Pip requirements for this program are:
-- discord.py
-- python-dotenv
-- PyNaCl
+## Installation
 
+Install dependencies with
+```bash
+pip3 install -r requirements.txt
+```
 
-Install them with `pip install discord.py,
-                   pip install python-dotenv,
-                   pip install PyNaCl`
+## Running
+
+The bot can be run with
+```bash
+python3 main.py
+```
