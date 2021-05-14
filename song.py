@@ -9,74 +9,75 @@ from discord import embeds
 from discord.ext import commands
 
 # youtubedl
-import youtube_dl
+from youtube_dl import YoutubeDL
 
 class Song(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.np = {}
+        self.ydl_opts = {
+            'format': 'bestaudio/best',
+            'noplaylist':'True',
+            'outtmpl': 'songs/song.mp3',
+            'quiet': 'True',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+        }
+
+    def downloadsearch(self, arg):
+        with YoutubeDL(self.ydl_opts) as ydl:
+            video = ydl.extract_info(f"ytsearch:{arg}", download=True)["entries"][0]
+
+            return video
+
+    def downloadlink(self, arg):
+        with YoutubeDL(self.ydl_opts) as ydl:
+            video = ydl.extract_info(arg, download=True)
+
+        return video
+
 
     @commands.command(aliases=['play', 'p'], help="plays an mp3 song, do .playsong for more info")
-    @commands.has_role('VIP')
-    async def _play(self, ctx, *args):
+    # @commands.has_role('VIP')
+    async def _play(self, ctx, song):
         user = ctx.author
-        
-        songs = ["pog", "pogU", "Wait", "what", "manhunt", "bestsong", "men", "pathetique", "arabesque", "youtube"]
+
         if user.voice is None:
             await ctx.send("please join a vc before using this command")
             return
             
         vc = user.voice.channel
-        
-        if len(args) == 0:
-            await ctx.send('the songs that are currently available are: ' + str(songs))
-            return
             
-        elif args[0] in songs:
-            self.np["song"] = args[0]
-            
-            if vc is not None:
-                voice_channel = await vc.connect()
-                channel = vc.name
-                await ctx.send(user.name + " is in " + channel)
-                await ctx.send("do '.stop' to stop the song, (you have to make it leave for it to play another song)")
-
-                if len(args) == 1:
-                    self.np["isloop"] = False
-                    voice_channel.play(discord.FFmpegPCMAudio("songs/" + args[0] + ".mp3"))
-                    self.np["currentTime"] = 0
-                    
-                    while voice_channel.is_playing():
-                        await asyncio.sleep(1)
-                        self.np["currentTime"] += 1
-
-                elif args[1] == "loop":
-                    self.np["isloop"] = True
-                    await ctx.send("you have chosen the 'loop' switch, it will play endlessly unless you stop it.")
-                    while True:
-                        voice_channel.play(discord.FFmpegPCMAudio("songs/" + args[0] + ".mp3"))
-                        self.np["currentTime"] = 0
-                        
-                        while voice_channel.is_playing():
-                            self.np["currentTime"] += 1
-                            await asyncio.sleep(1)
-                            
-                voice_channel.stop()
-            else:
-                await ctx.send('User is not in a channel')
-
-        elif args[0] == "all":
-            self.np["song"] = args[0]
+        if vc is not None:
             voice_channel = await vc.connect()
             channel = vc.name
-            await ctx.send("user is in " + channel)
+            await ctx.send(user.name + " is in " + channel)
             await ctx.send("do '.stop' to stop the song, (you have to make it leave for it to play another song)")
-            for song in songs:
-                voice_channel.play(discord.FFmpegPCMAudio("songs/" + song + ".mp3"))
-                while voice_channel.is_playing():
-                    await asyncio.sleep(1)
+            
+            
+            if "https://" in song:
+                
+                songdata = self.downloadlink(song)
+            
+            else:
+                
+                songdata = self.downloadsearch(song)
+            
+            title = songdata["title"]
+            url = songdata["webpage_url"]
+            
+            audio = discord.FFmpegPCMAudio('songs/song.mp3')
+            
+            voice_channel.play(audio)
+            
+            await ctx.send(f"Now playing: `{title}` from `{url}`")
+
+            
         else:
-            await ctx.send("could not find that song")
+            await ctx.send('User is not in a channel')
 
 
     @commands.command(name='stop', help='leaves the vc')
