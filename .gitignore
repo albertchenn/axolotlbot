@@ -140,3 +140,4 @@ cython_debug/
 .vscode/
 .idea/
 save_pid.txt
+songs/song.mp3

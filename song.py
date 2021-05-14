@@ -42,7 +42,7 @@ class Song(commands.Cog):
 
     @commands.command(aliases=['play', 'p'], help="plays an mp3 song, do .playsong for more info")
     # @commands.has_role('VIP')
-    async def _play(self, ctx, song):
+    async def _play(self, ctx, *, song):
         user = ctx.author
 
         if user.voice is None:
@@ -57,13 +57,10 @@ class Song(commands.Cog):
             await ctx.send(user.name + " is in " + channel)
             await ctx.send("do '.stop' to stop the song, (you have to make it leave for it to play another song)")
             
+            if os.path.exists("songs/song.mp3"):
+                os.remove("songs/song.mp3")
             
-            if "https://" in song:
-                
-                songdata = self.downloadlink(song)
-            
-            else:
-                
+            async with ctx.typing():
                 songdata = self.downloadsearch(song)
             
             title = songdata["title"]
@@ -97,17 +94,7 @@ class Song(commands.Cog):
         if self.np != {}: 
             npembed=discord.Embed(title="Song Info", description="current song info", color=0xff85a2)
             npembed.add_field(name="Song", value=self.np["song"], inline=True)
-            npembed.add_field(name="Loop", value=self.np["isloop"], inline=True)
             
-            curinsec = self.np["currentTime"]
-            
-            endseconds = str(curinsec - curinsec // 60 * 5)
-            endseconds = endseconds.rjust(2, "0")
-            
-            curinmin = f"{curinsec // 60}:{endseconds}"
-            
-            
-            npembed.add_field(name="time elapsed", value=curinmin)
         else:
             npembed=discord.Embed(title="There is not a song currently playing", color=0xff58a2)
         
