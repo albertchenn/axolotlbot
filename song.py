@@ -11,72 +11,72 @@ from discord.ext import commands
 # youtubedl
 from youtube_dl import YoutubeDL
 
+ydl_opts = {
+    'format': 'bestaudio/best',
+    'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
+    'restrictfilenames': True,
+    'noplaylist': True,
+    'nocheckcertificate': True,
+    'ignoreerrors': False,
+    'logtostderr': False,
+    'quiet': True,
+    'no_warnings': True,
+    'default_search': 'auto',
+    'source_address': '0.0.0.0' # bind to ipv4 since ipv6 addresses cause issues sometimes
+}
+
+ffmpeg_options = {
+    'options': '-vn'
+}
+
+ytdl = YoutubeDL(ydl_opts)
+
+class YTDLSource(discord.PCMVolumeTransformer):
+    def __init__(self, source, *, data, volume=0.5):
+        super().__init__(source, volume)
+
+        self.data = data
+
+        self.title = data.get('title')
+        self.url = data.get('url')
+
+    @classmethod
+    async def from_song(cls, song, *, loop=None, stream=False):
+        loop = loop or asyncio.get_event_loop()
+        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(f"ytsearch:{song}", download=not stream))
+
+        if 'entries' in data:
+            # take first item from a playlist
+            data = data['entries'][0]
+
+        filename = data['url'] if stream else ytdl.prepare_filename(data)
+        return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
+
 class Song(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.np = {}
-        self.ydl_opts = {
-            'format': 'bestaudio/best',
-            'noplaylist':'True',
-            'outtmpl': 'songs/song.mp3',
-            'quiet': 'True',
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }],
-        }
+        
+    @commands.command()
+    async def join(self, ctx):
 
-    def downloadsearch(self, arg):
-        with YoutubeDL(self.ydl_opts) as ydl:
-            video = ydl.extract_info(f"ytsearch:{arg}", download=True)["entries"][0]
+        if ctx.voice_client is not None:
+            return await ctx.voice_client.move_to(ctx.author.voice.channel)
 
-            return video
-
-    def downloadlink(self, arg):
-        with YoutubeDL(self.ydl_opts) as ydl:
-            video = ydl.extract_info(arg, download=True)
-
-        return video
-
-
-    @commands.command(aliases=['play', 'p'], help="plays an mp3 song, do .playsong for more info")
-    # @commands.has_role('VIP')
+        await ctx.author.voice.channel.connect()
+        
+    @commands.command(aliases=["p", "play"], help="play song lmao")
     async def _play(self, ctx, *, song):
-        user = ctx.author
 
-        if user.voice is None:
-            await ctx.send("please join a vc before using this command")
-            return
+        if not ctx.voice_client:
+            await ctx.author.voice.channel.connect()
             
-        vc = user.voice.channel
-            
-        if vc is not None:
-            voice_channel = await vc.connect()
-            channel = vc.name
-            await ctx.send(user.name + " is in " + channel)
-            await ctx.send("do '.stop' to stop the song, (you have to make it leave for it to play another song)")
-            
-            if os.path.exists("songs/song.mp3"):
-                os.remove("songs/song.mp3")
-            
-            async with ctx.typing():
-                songdata = self.downloadsearch(song)
-            
-            title = songdata["title"]
-            url = songdata["webpage_url"]
-            
-            audio = discord.FFmpegPCMAudio('songs/song.mp3')
-            
-            voice_channel.play(audio)
-            
-            await ctx.send(f"Now playing: `{title}` from `{url}`")
+        async with ctx.typing():
+            player = await YTDLSource.from_song(song, loop=self.bot.loop, stream=True)
+            ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else None)
 
+        await ctx.send(f'Now playing: {player.title}')
             
-        else:
-            await ctx.send('User is not in a channel')
-
-
     @commands.command(name='stop', help='leaves the vc')
     async def _stop(self, ctx):
         voice_client = ctx.message.guild.voice_client
@@ -89,13 +89,22 @@ class Song(commands.Cog):
         else:
             await ctx.send('axolotl is not in a channel')
     
+    @commands.command(name='volume', help='changes volume')
+    async def volume(self, ctx, volume: int):
+        if ctx.voice_client is None:
+            return await ctx.send("User is not in a channel")
+        
+        ctx.voice_client.source.volume = volume / 100
+        await ctx.send(f"Changed volume to {volume}")
+        
     @commands.command(name='np', help='displays current playing song (if any)')
     async def _np(self, ctx):
         if self.np != {}: 
             npembed=discord.Embed(title="Song Info", description="current song info", color=0xff85a2)
             npembed.add_field(name="Song", value=self.np["song"], inline=True)
-            
+            npembed.add_field(name="Requested by", value=self.np["requested"], inline=True)
         else:
             npembed=discord.Embed(title="There is not a song currently playing", color=0xff58a2)
         
         await ctx.send(embed = npembed)
+    
