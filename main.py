@@ -1,6 +1,5 @@
 # bot.py
 # local imports
-from discord.channel import VoiceChannel
 from admin import Admin
 from game import Games
 from sql import SQL
