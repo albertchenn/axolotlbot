@@ -38,25 +38,26 @@ class YTDLSource(discord.PCMVolumeTransformer):
         self.data = data
 
         self.title = data.get('title')
-        self.url = data.get('url')
-
+        self.url = data.get('webpage_url')
+        self.uploader = data.get('uploader')
+        
     @classmethod
-    async def from_song(cls, song, *, loop=None, stream=False):
+    async def from_song(cls, song, *, loop=None):
         loop = loop or asyncio.get_event_loop()
-        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(f"ytsearch:{song}", download=not stream))
+        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(f"ytsearch:{song}", download=False))
 
         if 'entries' in data:
-            # take first item from a playlist
+
             data = data['entries'][0]
 
-        filename = data['url'] if stream else ytdl.prepare_filename(data)
+        filename = data['url']
         return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
 
 class Song(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.np = {}
-        
+
     @commands.command()
     async def join(self, ctx):
 
@@ -65,17 +66,19 @@ class Song(commands.Cog):
 
         await ctx.author.voice.channel.connect()
         
-    @commands.command(aliases=["p", "play"], help="play song lmao")
-    async def _play(self, ctx, *, song):
+    @commands.command(aliases=["p"], help="play song lmao")
+    async def play(self, ctx, *, song):
 
         if not ctx.voice_client:
             await ctx.author.voice.channel.connect()
-            
+
+        
         async with ctx.typing():
-            player = await YTDLSource.from_song(song, loop=self.bot.loop, stream=True)
+            player = await YTDLSource.from_song(song, loop=self.bot.loop)
             ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else None)
 
-        await ctx.send(f'Now playing: {player.title}')
+        await ctx.send(f'Now playing: `{player.title}` by `{player.uploader}` from `{player.url}`')
+    
             
     @commands.command(name='stop', help='leaves the vc')
     async def _stop(self, ctx):
@@ -106,5 +109,7 @@ class Song(commands.Cog):
         else:
             npembed=discord.Embed(title="There is not a song currently playing", color=0xff58a2)
         
-        await ctx.send(embed = npembed)
+        await ctx.send(embed = npembed) # FIXME: add like everything
     
+    # TODO: ADD LOOP
+    # TODO: ADD ERROR MESSAGE IF BOT IS CURRENTLY PLAYING SONG
