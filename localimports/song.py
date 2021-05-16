@@ -58,6 +58,7 @@ class Song(commands.Cog):
         self.bot = bot
         self.np = {}
 
+
     @commands.command()
     async def join(self, ctx):
 
@@ -67,25 +68,25 @@ class Song(commands.Cog):
         await ctx.author.voice.channel.connect()
         
     @commands.command(aliases=["p"], help="play song lmao")
-    async def play(self, ctx, *, song):
+    async def play(self, ctx, *, song): # TODO: embeds
 
         if not ctx.voice_client:
             await ctx.author.voice.channel.connect()
-
         
         async with ctx.typing():
             player = await YTDLSource.from_song(song, loop=self.bot.loop)
-            ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else None)
         
-        self.np["song"] = player.title
-        self.np["artist"] = player.uploader
-        self.np["requested"] = ctx.author
-        
-        await ctx.send(f'Now playing: `{player.title}` by `{player.uploader}` from `{player.url}`')
-    
+            self.np["song"] = player.title
+            self.np["artist"] = player.uploader
+            self.np["requested"] = ctx.author
             
+            await ctx.send(f'Now playing: `{player.title}` by `{player.uploader}` from `{player.url}`')
+            
+            ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else None)
+
+        
     @commands.command(help='leaves the vc')
-    async def stop(self, ctx):
+    async def stop(self, ctx): # TODO: embeds
         voice_client = ctx.message.guild.voice_client
         
         if voice_client is not None:
@@ -97,11 +98,11 @@ class Song(commands.Cog):
             await ctx.send('axolotl is not in a channel')
     
     @commands.command(name='volume', help='changes volume')
-    async def volume(self, ctx, volume: int):
+    async def volume(self, ctx, volume: int): # TODO: embeds
         if ctx.voice_client is None:
             return await ctx.send("User is not in a channel")
         
-        ctx.voice_client.source.volume = volume / 100
+        ctx.voice_client.source.volume = volume / 100        
         await ctx.send(f"Changed volume to {volume}")
         
     @commands.command(help='displays current playing song (if any)')
@@ -114,6 +115,3 @@ class Song(commands.Cog):
             npembed=discord.Embed(title="There is not a song currently playing", color=0xff58a2)
         
         await ctx.send(embed = npembed)
-    
-    # TODO: ADD LOOP
-    # TODO: ADD ERROR MESSAGE IF BOT IS CURRENTLY PLAYING SONG
