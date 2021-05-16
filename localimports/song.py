@@ -104,8 +104,8 @@ class Song(commands.Cog):
         ctx.voice_client.source.volume = volume / 100
         await ctx.send(f"Changed volume to {volume}")
         
-    @commands.command(name='np', help='displays current playing song (if any)')
-    async def _np(self, ctx):
+    @commands.command(help='displays current playing song (if any)')
+    async def np(self, ctx):
         if self.np != {}:   
             npembed=discord.Embed(title="Song Info", color=0xff85a2)
             npembed.add_field(name="Song", value=self.np["song"], inline=True)
@@ -114,5 +114,6 @@ class Song(commands.Cog):
             npembed=discord.Embed(title="There is not a song currently playing", color=0xff58a2)
         
         await ctx.send(embed = npembed)
+    
     # TODO: ADD LOOP
     # TODO: ADD ERROR MESSAGE IF BOT IS CURRENTLY PLAYING SONG
