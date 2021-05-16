@@ -12,8 +12,8 @@ class Levels(commands.Cog):
         self.bot = bot
         self.sql = sql
     
-    @commands.command(aliases=['lvl', 'level'], help="Displays someones level in axolotl clan")
-    async def _level(self, ctx, user: discord.Member = None):
+    @commands.command(aliases=['lvl'], help="Displays someones level in axolotl clan")
+    async def level(self, ctx, user: discord.Member = None):
         spam = self.bot.get_channel(768876717422936115)
         if user == None:
             id = str(ctx.message.author.id)
@@ -42,8 +42,8 @@ class Levels(commands.Cog):
         else:
             await ctx.send("Go to spam smh my head")
             
-    @commands.command(aliases=["lb", "leaderboard"])
-    async def _leaderboard(self, ctx):
+    @commands.command(aliases=["lb"])
+    async def leaderboard(self, ctx):
         rawxpdictionary = {}
         leaderboard = []
 
@@ -75,8 +75,8 @@ class Levels(commands.Cog):
         await ctx.send(embed=lbEmbed)
     
     
-    @commands.command(name='invites', help='checks how many invites you have, if you have three or higher you get vip') # ik this isn't the right place but theres no other good spot lmao
-    async def _invites(self, ctx):
+    @commands.command(help='checks how many invites you have, if you have three or higher you get vip') # ik this isn't the right place but theres no other good spot lmao
+    async def invites(self, ctx):
         axolotlclan = self.bot.get_guild(591065297692262410)
         message = ctx.message
         user = message.author

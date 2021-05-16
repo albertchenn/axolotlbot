@@ -91,8 +91,8 @@ class Admin(commands.Cog):
             await ctx.send("format is .setlevel (user) (level)")
 
 
-    @commands.command(name='ping', help="pings someone 5 times")
+    @commands.command(help="pings someone 5 times")
     @commands.has_role('Admin')
-    async def _ping(self, ctx, user: discord.Member):
+    async def ping(self, ctx, user: discord.Member):
         for _ in range(5):
             await ctx.send(user.mention)

@@ -84,8 +84,8 @@ class Song(commands.Cog):
         await ctx.send(f'Now playing: `{player.title}` by `{player.uploader}` from `{player.url}`')
     
             
-    @commands.command(name='stop', help='leaves the vc')
-    async def _stop(self, ctx):
+    @commands.command(help='leaves the vc')
+    async def stop(self, ctx):
         voice_client = ctx.message.guild.voice_client
         
         if voice_client is not None:
