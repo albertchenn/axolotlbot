@@ -76,7 +76,11 @@ class Song(commands.Cog):
         async with ctx.typing():
             player = await YTDLSource.from_song(song, loop=self.bot.loop)
             ctx.voice_client.play(player, after=lambda e: print(f'Player error: {e}') if e else None)
-
+        
+        self.np["song"] = player.title
+        self.np["artist"] = player.uploader
+        self.np["requested"] = ctx.author
+        
         await ctx.send(f'Now playing: `{player.title}` by `{player.uploader}` from `{player.url}`')
     
             
@@ -102,14 +106,13 @@ class Song(commands.Cog):
         
     @commands.command(name='np', help='displays current playing song (if any)')
     async def _np(self, ctx):
-        if self.np != {}: 
-            npembed=discord.Embed(title="Song Info", description="current song info", color=0xff85a2)
+        if self.np != {}:   
+            npembed=discord.Embed(title="Song Info", color=0xff85a2)
             npembed.add_field(name="Song", value=self.np["song"], inline=True)
             npembed.add_field(name="Requested by", value=self.np["requested"], inline=True)
         else:
             npembed=discord.Embed(title="There is not a song currently playing", color=0xff58a2)
         
-        await ctx.send(embed = npembed) # FIXME: add like everything
-    
+        await ctx.send(embed = npembed)
     # TODO: ADD LOOP
     # TODO: ADD ERROR MESSAGE IF BOT IS CURRENTLY PLAYING SONG
