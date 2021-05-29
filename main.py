@@ -1,11 +1,10 @@
 # bot.py
 # local imports
-from discord.channel import VoiceChannel
-from admin import Admin
-from game import Games
-from sql import SQL
-from song import Song
-from levels import Levels
+from localimports.admin import Admin
+from localimports.game import Games
+from localimports.sql import SQL
+from localimports.song import Song
+from localimports.levels import Levels
 
 # builtin imports
 import asyncio
@@ -81,7 +80,7 @@ async def on_message(message):
         await user.send(
             "buff axolotl is coming for you, so prepare yourself mortal.\nYou shall not stand the wrath of BUFF AXOLOTL"
         )
-        await user.send(file=discord.File('buffaxolotl.png'))  # threatening dm
+        await user.send(file=discord.File('images/buffaxolotl.png'))  # threatening dm
 
     if "school sucks" in message.content.lower():  # triggers on the message "school sucks"
         msgs = []  # creates empty list to log the pings
