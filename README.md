@@ -12,5 +12,5 @@ pip3 install -r requirements.txt
 
 The bot can be run with
 ```bash
-python3 main.py
+sh scripts/axostart.sh
 ```
