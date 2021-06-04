@@ -14,3 +14,8 @@ The bot can be run with
 ```bash
 sh scripts/axostart.sh
 ```
+or
+
+```bash
+python3 main.py
+```
