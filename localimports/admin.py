@@ -4,6 +4,8 @@ import discord
 from discord.ext import commands
 from datetime import datetime
 
+import subprocess
+
 DARKPINK = 0xe75480
 
 class Admin(commands.Cog):
@@ -96,3 +98,9 @@ class Admin(commands.Cog):
     async def ping(self, ctx, user: discord.Member):
         for _ in range(5):
             await ctx.send(user.mention)
+
+    @commands.command(help="restarts the bot")
+    @commands.has_role('Admin')
+    async def restart(self, ctx):
+        await ctx.send("restarting bot...")
+        subprocess.call(["sh", "scripts/axorestart.sh"])
