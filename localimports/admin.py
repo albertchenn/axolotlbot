@@ -4,7 +4,9 @@ import discord
 from discord.ext import commands
 from datetime import datetime
 
+import sys
 import subprocess
+import os
 
 DARKPINK = 0xe75480
 
@@ -103,4 +105,4 @@ class Admin(commands.Cog):
     @commands.has_role('Admin')
     async def restart(self, ctx):
         await ctx.send("restarting bot...")
-        subprocess.call(["sh", "scripts/axorestart.sh"])
+        subprocess.call([sys.executable, os.path.realpath(__file__)] + sys.argv[1:]) #restart the program
