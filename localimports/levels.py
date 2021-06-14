@@ -3,6 +3,7 @@
 import discord
 from discord.ext import commands
 from datetime import datetime
+import time
 
 DARKPINK = 0xe75480
 LIGHTPINK = 0xff85a2
@@ -46,22 +47,25 @@ class Levels(commands.Cog):
     async def leaderboard(self, ctx):
         rawxpdictionary = {}
         leaderboard = []
-
+        
         for user in self.sql.getIDs():
             person = self.bot.get_user(int(user))
             if not person:
                 continue
-            if not person.bot:
-                rawxp = (100 * (self.sql.getLevel(user) - 2) + 100) * (self.sql.getLevel(user) - 1) / 2 + self.sql.getXP(user)
+            if not person.bot: 
+                rawxp = 50 * (self.sql.getLevel(user) ** 2) + self.sql.getXP(user)
                 rawxpdictionary[person] = rawxp
                 rawxpdictionary = dict(sorted(rawxpdictionary.items(), key=lambda item: item[1], reverse=True))
 
         place = 1
+         
         for usr in rawxpdictionary:
             userLevel = self.sql.getLevel(usr.id)
             userXP = self.sql.getXP(usr.id)
             leaderboard.append(f"{place}. {usr.name}'s raw xp: **{int(rawxpdictionary[usr])}** | level: **{userLevel}** | xp: **{userXP}**")
+  
             place += 1
+            
             if place == 11:
                 break
             
@@ -73,8 +77,7 @@ class Levels(commands.Cog):
         lbEmbed.description = lbString
         lbEmbed.set_footer(text="Axolotl Clan")
         await ctx.send(embed=lbEmbed)
-    
-    
+
     @commands.command(help='checks how many invites you have, if you have three or higher you get vip') # ik this isn't the right place but theres no other good spot lmao
     async def invites(self, ctx):
         axolotlclan = self.bot.get_guild(591065297692262410)

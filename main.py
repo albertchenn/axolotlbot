@@ -120,7 +120,7 @@ async def on_message(message):
             lvls.commit()
 
         else:
-            if 100 * (sql.getLevel(id) - 1) + 50 <= sql.getXP(id)+ 1: # check if it passed the level; level cap is calculated as 100 * (level - 1) + 50
+            if 100 * sql.getLevel(id) - 50 <= sql.getXP(id)+ 1: # check if it passed the level; level cap is calculated as 100 * (level - 1) + 50
                 sql.editLevel(id, 1)
                 sql.editXP(id, -sql.getXP(id))
 
