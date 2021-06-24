@@ -22,11 +22,11 @@ import mysql.connector
 
 load_dotenv()
 TOKEN = os.environ["TOKEN"]  # taking environment variables from .env
-PASSWORD = os.environ["PASSWORD"]
-USER = os.environ["USR"]
-HOST = os.environ["HOST"]
-DATABASE = os.environ["DATABASE"]
-PORT = os.environ["PORT"]
+PASSWORD = os.environ["MYSQLPASSWORD"]
+USER = os.environ["MYSQLUSER"]
+HOST = os.environ["MYSQLHOST"]
+DATABASE = os.environ["MYSQLDATABASE"]
+PORT = os.environ["MYSQLPORT"]
 
 intents = discord.Intents().all()
 bot = commands.Bot(command_prefix=".", intents=intents)  # creates bot instance
@@ -116,8 +116,7 @@ async def on_message(message):
 
     if (message.channel not in bannedchannels) and (message.content[0] not in bannedstarts) and (message.guild.id == axolotlclan.id):  # check if it's not a spam channel or a bot command
         if not sql.checkExist(id):  # if a new user joins and says something, create a new dictionary in the json file
-            sql.cursor.execute(f"INSERT INTO levels VALUES ({id}, '1', '1')")
-            lvls.commit()
+            sql.addNewUser(id)
 
         else:
             if 100 * sql.getLevel(id) - 50 <= sql.getXP(id)+ 1: # check if it passed the level; level cap is calculated as 100 * (level - 1) + 50
