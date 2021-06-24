@@ -22,11 +22,11 @@ import mysql.connector
 
 load_dotenv()
 TOKEN = os.environ["TOKEN"]  # taking environment variables from .env
-PASSWORD = os.environ["PASSWORD"]
-USER = os.environ["USR"]
-HOST = os.environ["HOST"]
-DATABASE = os.environ["DATABASE"]
-PORT = os.environ["PORT"]
+PASSWORD = os.environ["MYSQLPASSWORD"]
+USER = os.environ["MYSQLUSER"]
+HOST = os.environ["MYSQLHOST"]
+DATABASE = os.environ["MYSQLDATABASE"]
+PORT = os.environ["MYSQLPORT"]
 
 intents = discord.Intents().all()
 bot = commands.Bot(command_prefix=".", intents=intents)  # creates bot instance
