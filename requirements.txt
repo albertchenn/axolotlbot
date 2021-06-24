@@ -2,3 +2,4 @@ discord.py
 python-dotenv
 PyNaCl
 youtube_dl
+mysql-connector-python
