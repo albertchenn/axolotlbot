@@ -116,7 +116,7 @@ async def on_message(message):
 
     if (message.channel not in bannedchannels) and (message.content[0] not in bannedstarts) and (message.guild.id == axolotlclan.id):  # check if it's not a spam channel or a bot command
         if not sql.checkExist(id):  # if a new user joins and says something, create a new dictionary in the json file
-            sql.addNewUser()
+            sql.addNewUser(id)
 
         else:
             if 100 * sql.getLevel(id) - 50 <= sql.getXP(id)+ 1: # check if it passed the level; level cap is calculated as 100 * (level - 1) + 50

@@ -48,6 +48,7 @@ class SQL():
 
         return ids
     
-    def addNewUser(self):
+    def addNewUser(self, id):
+        id = int(id)
         self.cursor.execute(f"INSERT INTO levels VALUES ({id}, 1, 1)")
         self.lvls.commit()
