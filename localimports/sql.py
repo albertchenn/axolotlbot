@@ -5,23 +5,21 @@ class SQL():
         self.cursor = cursor
         self.lvls = database
         
-    def checkExist(self, item):
-            self.cursor.execute(f"SELECT * FROM levels")
+    def checkExist(self, id):
+            self.cursor.execute(f"SELECT * FROM levels WHERE id = {id}")
             db = self.cursor.fetchall()
-            for user in db:
-                if user[0] == item:
-                    return True
-            return False
+
+            return db
         
     def getXP(self, id):
         id = int(id)
-        self.cursor.execute(f"SELECT * FROM levels WHERE id = '{id}'")
+        self.cursor.execute(f"SELECT * FROM levels WHERE id = {id}")
         row = self.cursor.fetchall()
         return int(row[0][2])
 
     def getLevel(self, id):
         id = int(id)
-        self.cursor.execute(f"SELECT * FROM levels WHERE id = '{id}'")
+        self.cursor.execute(f"SELECT * FROM levels WHERE id = {id}")
         row = self.cursor.fetchall()
         return int(row[0][1])
 
@@ -29,7 +27,7 @@ class SQL():
         id = int(id)
         xpAdd = self.getXP(id) + amount
 
-        self.cursor.execute(f"UPDATE levels SET xp = '{xpAdd}' WHERE id = '{id}' ")
+        self.cursor.execute(f"UPDATE levels SET xp = {xpAdd} WHERE id = {id} ")
         
         self.lvls.commit()
 
@@ -37,7 +35,7 @@ class SQL():
         id = int(id)
         levelAdd = self.getLevel(id) + amount
 
-        self.cursor.execute(f"UPDATE levels SET level = '{levelAdd}' WHERE id = '{id}' ")
+        self.cursor.execute(f"UPDATE levels SET level = {levelAdd} WHERE id = {id} ")
 
         self.lvls.commit()
 
@@ -49,3 +47,7 @@ class SQL():
         ids = [id[0] for id in column]
 
         return ids
+    
+    def addNewUser(self):
+        self.cursor.execute(f"INSERT INTO levels VALUES ({id}, 1, 1)")
+        self.lvls.commit()
