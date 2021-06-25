@@ -1,10 +1,13 @@
 # bot.py
 # local imports
 from localimports.admin import Admin
+from localimports.adminslash import AdminSlash
 from localimports.game import Games
 from localimports.sql import SQL
 from localimports.song import Song
 from localimports.levels import Levels
+from localimports.levelsslash import LevelsSlash
+from localimports.testcog import Test 
 
 # builtin imports
 import asyncio
@@ -20,6 +23,8 @@ from discord.ext import commands
 # database
 import mysql.connector
 
+from discord_slash import SlashCommand
+
 load_dotenv()
 TOKEN = os.environ["TOKEN"]  # taking environment variables from .env
 PASSWORD = os.environ["MYSQLPASSWORD"]
@@ -30,6 +35,7 @@ PORT = os.environ["MYSQLPORT"]
 
 intents = discord.Intents().all()
 bot = commands.Bot(command_prefix=".", intents=intents)  # creates bot instance
+slash = SlashCommand(bot, sync_commands=True)
 
 lvls = mysql.connector.connect(user = USER,
                                password = PASSWORD,
@@ -42,6 +48,7 @@ sql = SQL(cursor, lvls)
 
 LIGHTPINK = 0xff85a2
 
+guild_ids = [591065297692262410]
 
 @bot.event
 async def on_ready():
@@ -155,11 +162,17 @@ async def on_member_join(member):  # triggers on member join
         f"<#758025770181460015>\nUse the school roles channel to get your class or game roles!")  # welcome and
     # informational message
     await main.send(f"{member.name} is here!")
-    
+
+@slash.slash(name = "test", guild_ids = guild_ids)
+async def test(ctx):
+    await ctx.send("<@435185747184582668>")
 
 bot.add_cog(Games(bot))
 bot.add_cog(Song(bot))
 bot.add_cog(Admin(bot, sql))
+bot.add_cog(AdminSlash(bot, sql))
 bot.add_cog(Levels(bot, sql))
+bot.add_cog(LevelsSlash(bot, sql))
+bot.add_cog(Test(bot, sql))
 
 bot.run(TOKEN)  # runs the program

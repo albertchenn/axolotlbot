@@ -4,20 +4,23 @@ import discord
 from discord.ext import commands
 from datetime import datetime
 
+from discord_slash import cog_ext
+
 DARKPINK = 0xe75480
 LIGHTPINK = 0xff85a2
 
+guild_ids = [591065297692262410]
 
-class Levels(commands.Cog):
+class LevelsSlash(commands.Cog):
     def __init__(self, bot, sql):
         self.bot = bot
         self.sql = sql
     
-    @commands.command(aliases=['lvl'], help="Displays someones level in axolotl clan")
+    @cog_ext.cog_slash(name="level", description="Displays someones level in axolotl clan", guild_ids=guild_ids)
     async def level(self, ctx, user: discord.Member = None):
         spam = self.bot.get_channel(768876717422936115)
         if user == None:
-            id = str(ctx.message.author.id)
+            id = str(ctx.author.id)
         else:
             id = str(user.id)
         if ctx.channel == spam:
@@ -33,7 +36,7 @@ class Levels(commands.Cog):
                 levelinfoembed = discord.Embed(title="I couldn't find that user, try mentioning them instead", color=LIGHTPINK, timestamp=datetime.utcnow())
                 await ctx.send(embed=levelinfoembed)
 
-    @commands.command(name = "balls", description = "Gives Arav 10000 xp cuz he creams to dream")
+    @cog_ext.cog_slash(name = "balls", description = "Gives Arav 10000 xp cuz he creams to dream", guild_ids=guild_ids)
     @commands.cooldown(1, 10, commands.BucketType.guild)
     async def balls(self, ctx):
         spam = self.bot.get_channel(768876717422936115)
@@ -43,10 +46,11 @@ class Levels(commands.Cog):
         else:
             await ctx.send("Go to spam smh my head")
             
-    @commands.command(aliases=["lb"])
-    async def leaderboard(self, ctx):
+    @cog_ext.cog_slash(name="lb", guild_ids=guild_ids)
+    async def lb(self, ctx):
         rawxpdictionary = {}
         leaderboard = []
+        await ctx.defer()
         
         for user in self.sql.getIDs():
             person = self.bot.get_user(int(user))
@@ -78,11 +82,9 @@ class Levels(commands.Cog):
         lbEmbed.set_footer(text="Axolotl Clan")
         await ctx.send(embed=lbEmbed)
 
-    @commands.command(help='checks how many invites you have, if you have three or higher you get vip') # ik this isn't the right place but theres no other good spot lmao
+    @cog_ext.cog_slash(description='checks how many invites you have, if you have three or higher you get vip', guild_ids=guild_ids) # ik this isn't the right place but theres no other good spot lmao
     async def invites(self, ctx):
         axolotlclan = self.bot.get_guild(591065297692262410)
-        message = ctx.message
-        user = message.author
 
         totalInvites = 0
         for i in await ctx.guild.invites():
@@ -95,9 +97,9 @@ class Levels(commands.Cog):
         if totalInvites >= 3 and vip not in ctx.author.roles:
             viprank = str("congrats, you earned the VIP role!")
             vipembed = discord.Embed(title=viprank, color=LIGHTPINK)  # vip embed once they reach level 25
-            await message.channel.send(embed=vipembed)
+            await ctx.send(embed=vipembed)
 
-            await user.add_roles(vip)
+            await ctx.author.add_roles(vip)
 
         await ctx.send(embed=invitesEmbed)
         
