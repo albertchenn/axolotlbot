@@ -3,3 +3,4 @@ python-dotenv
 PyNaCl
 youtube_dl
 mysql-connector-python
+discord-py-slash-command
