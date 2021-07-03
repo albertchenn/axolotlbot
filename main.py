@@ -65,6 +65,8 @@ async def on_message(message):
     adminlogs = bot.get_channel(800417369548914708)
     timeout = bot.get_channel(785898040254922784)
 
+    PJ = '591065108210384896' # The special PJ ID
+
     bannedchannels = [spam, music, timeout]  # makes lists of blacklisted channels
     images = ['.jpg', '.png', '.jpeg', '.gif']
     bannedstarts = ['!', '.', '?']
@@ -126,7 +128,7 @@ async def on_message(message):
             sql.addNewUser(id)
 
         else:
-            if 100 * sql.getLevel(id) - 50 <= sql.getXP(id)+ 1: # check if it passed the level; level cap is calculated as 100 * (level - 1) + 50
+            if 100 * sql.getLevel(id) - 50 <= sql.getXP(id)+ 1 and id != PJ: # check if it passed the level; level cap is calculated as 100 * (level - 1) + 50
                 sql.editLevel(id, 1)
                 sql.editXP(id, -sql.getXP(id))
 
