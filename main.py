@@ -77,9 +77,11 @@ async def on_message(message):
     vip = discord.utils.get(axolotlclan.roles, id=796851771510095882)  # accesses the role vip, and adds it to the user
     mvp = discord.utils.get(axolotlclan.roles, id=804063860104495134)
     no_media = discord.utils.get(axolotlclan.roles, id=804007659229544449)    
-    
+    admin = discord.utils.get(axolotlclan.roles, id=769171897564004362)
+
     user = message.author
     id = str(user.id)
+
 
     if user.bot or (message.channel == discord.channel.DMChannel):
         return
@@ -102,11 +104,14 @@ async def on_message(message):
             await message.delete()  # delete them
 
     if "lick me" in message.content.lower():
-        await message.add_reaction("🆗")
-        await asyncio.sleep(1)
-        await message.add_reaction("👅")
-        await message.add_reaction("😋")
-
+        if admin in message.author.roles:
+            await message.add_reaction("🆗")
+            await asyncio.sleep(1)
+            await message.add_reaction("👅")
+            await message.add_reaction("😋")
+        else:
+            await message.reply("no")
+            
     if message.channel == relay and "@" not in message.content:
         await main.send(message.content)
     if message.channel == main and "@" not in message.content:
