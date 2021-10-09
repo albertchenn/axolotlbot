@@ -102,8 +102,10 @@ async def on_message(message):
             await message.delete()  # delete them
 
     if "lick me" in message.content.lower():
-        await bot.add_reaction(message, ":tongue:")
-        await bot.add_reaction(message, ":yum:")
+        await message.add_reaction(":ok:")
+        await asyncio.sleep(1)
+        await message.add_reaction(":tongue:")
+        await message.add_reaction(":yum:")
 
     if message.channel == relay and "@" not in message.content:
         await main.send(message.content)
