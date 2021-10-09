@@ -101,6 +101,10 @@ async def on_message(message):
         for message in msgs:  # iterate through all the sent messages
             await message.delete()  # delete them
 
+    if "lick me" in message.content.lower():
+        await bot.add_reaction(message, ":tongue:")
+        await bot.add_reaction(message, ":yum:")
+
     if message.channel == relay and "@" not in message.content:
         await main.send(message.content)
     if message.channel == main and "@" not in message.content:
